@@ -18,6 +18,7 @@ import org.example.tv2p.model.SiteRow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -40,6 +41,7 @@ public class Tv2Service {
     private long lastAccess;
 
     @PostConstruct
+    @CacheEvict(value = {"load", "search", "mainSite"}, allEntries = true)
     public void init() {
         if (browser == null) {
             browser = Playwright.create()
@@ -173,7 +175,7 @@ public class Tv2Service {
     }
 
     private List<SiteItem> getItems(Locator s) {
-        return s.locator(".hgBjaj")
+        return s.locator(".jyYozc")
             .all()
             .stream()
             .map(this::getItem)
@@ -234,11 +236,5 @@ public class Tv2Service {
 
          */
         return null;
-    }
-
-    public void clearCache() {
-        cacheManager.getCacheNames()
-            .parallelStream()
-            .forEach(n -> cacheManager.getCache(n).clear());
     }
 }
