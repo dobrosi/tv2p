@@ -5,6 +5,7 @@ import lombok.Data;
 import org.example.tv2p.Tv2Service;
 import org.example.tv2p.model.Site;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,26 +19,30 @@ public class Tv2Controller {
     @Autowired
     Tv2Service tv2Service;
 
-    @GetMapping("/inint")
+    @GetMapping("/init")
     public void init() {
         tv2Service.init();
     }
 
+    @Cacheable("mainSite")
     @GetMapping("/get")
     public Site getMainSite() {
         return tv2Service.getMainSite();
     }
 
+    @Cacheable(value = "load", key = "#url == null ? '' : #url")
     @GetMapping("/load")
     public Site loadSite(@RequestParam(value = "url", required = false) String url ) {
         return tv2Service.loadSite(url);
     }
 
+    @Cacheable(value = "search", key = "#text")
     @GetMapping("/search")
     public Site search(@RequestParam(value = "text") String text ) {
         return tv2Service.search(text);
     }
 
+    @Cacheable(value = "videoUrl", key = "#url")
     @GetMapping("/getVideoUrl")
     public Response getVideoUrl(@RequestParam("url") String url) {
         return new Response(tv2Service.getVideoUrl(url));
