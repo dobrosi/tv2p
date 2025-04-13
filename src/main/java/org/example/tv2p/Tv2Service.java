@@ -10,6 +10,7 @@ import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
+import jakarta.annotation.PostConstruct;
 import lombok.Data;
 import org.example.tv2p.model.Site;
 import org.example.tv2p.model.SiteItem;
@@ -38,10 +39,7 @@ public class Tv2Service {
     private Site mainSite;
     private long lastAccess;
 
-    {
-        init();
-    }
-
+    @PostConstruct
     public void init() {
         if (browser == null) {
             browser = Playwright.create()
