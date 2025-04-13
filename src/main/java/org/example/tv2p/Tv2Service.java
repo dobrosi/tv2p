@@ -1,6 +1,7 @@
 package org.example.tv2p;
 
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -112,7 +113,7 @@ public class Tv2Service {
         boolean withTitle;
 
         if (url.contains("/szalag/")) {
-            pageLocator = ".gCSbay";
+            pageLocator = ".hmqeAp";
             withTitle = false;
         } else {
             pageLocator = ".eOPCjY";
@@ -130,14 +131,31 @@ public class Tv2Service {
         return new Site(
             getPage().title(),
             url,
-            getPage().locator(pageLocator)
-                .all()
-                .stream()
-                .map(
-                    v -> getRow(v, withTitle)
-                )
-                .toList(),
+            getSiteRows(pageLocator, withTitle),
             null);
+    }
+
+    private List<SiteRow> getSiteRows(final String pageLocator, final boolean withTitle) {
+        List<SiteRow> rows = getPage().locator(pageLocator)
+            .all()
+            .stream()
+            .map(
+                v -> getRow(v, withTitle)
+            )
+            .toList();
+        if (!withTitle) {
+            final SiteRow firstRow = rows.get(0);
+            rows = new ArrayList<>();
+            int i = 0;
+            SiteRow nextRow = null;
+            for (SiteItem item : firstRow.getSiteItems()) {
+                if (i++ % 4 == 0) {
+                    rows.add(nextRow = new SiteRow(null, null, null, new ArrayList<>()));
+                }
+                nextRow.getSiteItems().add(item);
+            }
+        }
+        return rows;
     }
 
     private void scrollDown() {
@@ -170,12 +188,14 @@ public class Tv2Service {
                 .contains("műsorok")) {
                 return new SiteRow(title, null, null, getChannelItems(s));
             }
+        } else {
+            return new SiteRow(title, null, getShowAllUrl(s), getItems(s, ".hpkJli"));
         }
-        return new SiteRow(title, null, getShowAllUrl(s), getItems(s));
+        return new SiteRow(title, null, getShowAllUrl(s), getItems(s, ".jyYozc"));
     }
 
-    private List<SiteItem> getItems(Locator s) {
-        return s.locator(".jyYozc")
+    private List<SiteItem> getItems(Locator s, String selector) {
+        return s.locator(selector)
             .all()
             .stream()
             .map(this::getItem)
@@ -183,7 +203,7 @@ public class Tv2Service {
     }
 
     private List<SiteItem> getChannelItems(Locator s) {
-        return s.locator("div.hgBjaj")
+        return s.locator(".hgBjaj")
             .all()
             .stream()
             .map(this::getChannelItem)
