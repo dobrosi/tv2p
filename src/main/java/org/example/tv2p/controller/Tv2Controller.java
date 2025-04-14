@@ -1,5 +1,7 @@
 package org.example.tv2p.controller;
 
+import java.io.Serializable;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.example.tv2p.Tv2Service;
@@ -50,7 +52,7 @@ public class Tv2Controller {
 
     @Data
     @AllArgsConstructor
-    public static class Response {
+    public static class Response implements Serializable {
         String value;
     }
 }

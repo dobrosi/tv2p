@@ -41,23 +41,12 @@ public class Tv2Service {
     private Site mainSite;
     private long lastAccess;
 
-    @PostConstruct
     @CacheEvict(value = {"load", "search", "mainSite"}, allEntries = true)
     public void init() {
-        if (browser == null) {
-            browser = Playwright.create()
-                .chromium()
-                .launchPersistentContext(
-                    Paths.get("playwright-user-data"),
-                    new BrowserType.LaunchPersistentContextOptions().setHeadless(headless)
-                );
-            internalPage = browser.newPage();
-        }
     }
 
     public void close() {
         if (browser != null) {
-            internalPage.close();
             browser.close();
         }
         internalPage = null;
@@ -102,7 +91,13 @@ public class Tv2Service {
     private Page getPage() {
         lastAccess = System.currentTimeMillis();
         if (internalPage == null) {
-            init();
+            browser = Playwright.create()
+                .chromium()
+                .launchPersistentContext(
+                    Paths.get("playwright-user-data"),
+                    new BrowserType.LaunchPersistentContextOptions().setHeadless(headless)
+                );
+            internalPage = browser.newPage();
         }
         return internalPage;
     }
