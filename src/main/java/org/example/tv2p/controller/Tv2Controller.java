@@ -25,8 +25,7 @@ public class Tv2Controller {
     public void init() {
         tv2Service.init();
     }
-
-    @Cacheable("mainSite")
+    
     @GetMapping("/get")
     public Site getMainSite() {
         return tv2Service.getMainSite();

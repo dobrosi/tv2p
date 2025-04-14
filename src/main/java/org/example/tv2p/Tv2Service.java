@@ -78,7 +78,9 @@ public class Tv2Service {
             getPage().waitForTimeout(500);
         } while (actualVideoUrl.isEmpty() && counter++ < 10);
         getPage().onRequest(null);
-        return actualVideoUrl.toString();
+        String res = actualVideoUrl.toString();
+        close();
+        return res;
     }
 
     @Scheduled(cron = "30 * * * * *")
@@ -119,7 +121,9 @@ public class Tv2Service {
 
         scrollDown();
 
-        return getSite(url, pageLocator, withTitle);
+        final Site site = getSite(url, pageLocator, withTitle);
+        close();
+        return site;
     }
 
     private Site getSite(String url, String pageLocator, boolean withTitle) {
