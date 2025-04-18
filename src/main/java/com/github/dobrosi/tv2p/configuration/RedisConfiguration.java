@@ -1,4 +1,4 @@
-package org.example.tv2p.configuration;
+package com.github.dobrosi.tv2p.configuration;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;

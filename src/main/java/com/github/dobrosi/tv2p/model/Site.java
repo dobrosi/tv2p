@@ -1,10 +1,11 @@
-package org.example.tv2p.model;
+package com.github.dobrosi.tv2p.model;
 
 import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -17,16 +18,16 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class SiteRow extends SiteItem {
+public class Site extends EntityObject {
     @Column
     private String title;
-
-    @Column
-    private String description;
 
     @Column
     private String url;
 
     @OneToMany
-    private List<SiteItem> siteItems;
+    private List<SiteRow> siteRows;
+
+    @OneToOne
+    private Site nextToMore;
 }

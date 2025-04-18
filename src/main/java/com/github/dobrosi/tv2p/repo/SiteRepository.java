@@ -1,4 +1,4 @@
-package org.example.tv2p.repo;
+package com.github.dobrosi.tv2p.repo;
 
 import org.springframework.stereotype.Repository;
 

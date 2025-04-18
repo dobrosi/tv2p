@@ -1,4 +1,4 @@
-package org.example.tv2p.model;
+package com.github.dobrosi.tv2p.model;
 
 import java.io.Serializable;
 

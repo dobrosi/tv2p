@@ -1,4 +1,4 @@
-package org.example.tv2p;
+package com.github.dobrosi.tv2p;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -11,11 +11,10 @@ import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
-import jakarta.annotation.PostConstruct;
 import lombok.Data;
-import org.example.tv2p.model.Site;
-import org.example.tv2p.model.SiteItem;
-import org.example.tv2p.model.SiteRow;
+import com.github.dobrosi.tv2p.model.Site;
+import com.github.dobrosi.tv2p.model.SiteItem;
+import com.github.dobrosi.tv2p.model.SiteRow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;

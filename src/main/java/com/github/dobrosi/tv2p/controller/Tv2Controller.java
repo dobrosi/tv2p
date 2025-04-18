@@ -1,11 +1,11 @@
-package org.example.tv2p.controller;
+package com.github.dobrosi.tv2p.controller;
 
 import java.io.Serializable;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.example.tv2p.Tv2Service;
-import org.example.tv2p.model.Site;
+import com.github.dobrosi.tv2p.Tv2Service;
+import com.github.dobrosi.tv2p.model.Site;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.CrossOrigin;
