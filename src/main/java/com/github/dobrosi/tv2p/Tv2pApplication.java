@@ -1,11 +1,15 @@
 package com.github.dobrosi.tv2p;
 
-import com.github.dobrosi.configuration.DobrosiApplication;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-@DobrosiApplication
+@SpringBootApplication
+@EnableConfigurationProperties
+@ConfigurationPropertiesScan
 @EnableCaching
 @EnableScheduling
 public class Tv2pApplication {
