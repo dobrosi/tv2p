@@ -18,8 +18,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/tv2")
 public class Tv2Controller {
+    final Tv2Service tv2Service;
+
     @Autowired
-    Tv2Service tv2Service;
+    public Tv2Controller(final Tv2Service tv2Service) {
+        this.tv2Service = tv2Service;
+    }
 
     @GetMapping("/init")
     public void init() {

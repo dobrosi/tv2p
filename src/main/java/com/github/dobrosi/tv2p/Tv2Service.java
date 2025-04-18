@@ -6,17 +6,17 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.github.dobrosi.tv2p.configuration.PlaywrigthConfiguration;
+import com.github.dobrosi.tv2p.model.Site;
+import com.github.dobrosi.tv2p.model.SiteItem;
+import com.github.dobrosi.tv2p.model.SiteRow;
 import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 import lombok.Data;
-import com.github.dobrosi.tv2p.model.Site;
-import com.github.dobrosi.tv2p.model.SiteItem;
-import com.github.dobrosi.tv2p.model.SiteRow;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -25,11 +25,8 @@ import org.springframework.stereotype.Service;
 @Data
 @Service
 public class Tv2Service {
-    @Value("${headless:true}")
-    private boolean headless;
-
-    @Autowired
-    private CacheManager cacheManager;
+    private final CacheManager cacheManager;
+    private final PlaywrigthConfiguration playwrigthConfiguration;
 
     public static final String DEFAULT_URL = "https://tv2play.hu";
     public static final String SEARCH_URL = "https://tv2play.hu/kereses?kulcsszo=";
@@ -39,6 +36,12 @@ public class Tv2Service {
     private BrowserContext browser;
     private Site mainSite;
     private long lastAccess;
+
+    @Autowired
+    public Tv2Service(final CacheManager cacheManager, final PlaywrigthConfiguration playwrigthConfiguration) {
+        this.cacheManager = cacheManager;
+        this.playwrigthConfiguration = playwrigthConfiguration;
+    }
 
     @CacheEvict(value = {"load", "search", "mainSite"}, allEntries = true)
     public void init() {
@@ -96,7 +99,7 @@ public class Tv2Service {
                 .chromium()
                 .launchPersistentContext(
                     Paths.get("playwright-user-data"),
-                    new BrowserType.LaunchPersistentContextOptions().setHeadless(headless)
+                    new BrowserType.LaunchPersistentContextOptions().setHeadless(playwrigthConfiguration.isHeadless())
                 );
             internalPage = browser.newPage();
         }
