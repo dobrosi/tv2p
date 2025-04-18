@@ -19,11 +19,16 @@ import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.jmx.export.annotation.ManagedOperation;
+import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Data
 @Service
+@ManagedResource(
+    objectName="DemoBeans:name=Tv2Service",
+    description="Tv2Service Bean")
 public class Tv2Service {
     private final CacheManager cacheManager;
     private final PlaywrigthConfiguration playwrigthConfiguration;
@@ -43,6 +48,7 @@ public class Tv2Service {
         this.playwrigthConfiguration = playwrigthConfiguration;
     }
 
+    @ManagedOperation
     @CacheEvict(value = {"load", "search", "mainSite"}, allEntries = true)
     public void init() {
     }
@@ -55,6 +61,7 @@ public class Tv2Service {
         browser = null;
     }
 
+    @ManagedOperation
     public Site loadSite(String url) {
         Site site = buildSite(DEFAULT_URL + (url == null ? "" : url));
         if (url == null || url.isEmpty()) {
@@ -63,10 +70,12 @@ public class Tv2Service {
         return site;
     }
 
+    @ManagedOperation
     public Site search(String text) {
         return buildSite(SEARCH_URL + text);
     }
 
+    @ManagedOperation
     public String getVideoUrl(String url) {
         final StringBuffer actualVideoUrl = new StringBuffer();
         getPage().onRequest(request -> {
