@@ -27,7 +27,7 @@ import org.springframework.stereotype.Service;
 @Data
 @Service
 @ManagedResource(
-    objectName="DemoBeans:name=Tv2Service",
+    objectName="Tv2pBeans:name=Tv2Service",
     description="Tv2Service Bean")
 public class Tv2Service {
     private final CacheManager cacheManager;
