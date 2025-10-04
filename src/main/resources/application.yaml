@@ -2,11 +2,14 @@ server.port: 8085
 playwright.headless: false
 
 spring:
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
   cache.type: redis
   data:
     redis:
       host: 192.168.1.222
       port: 6379
+
   jpa:
     hibernate:
       ddl-auto: update

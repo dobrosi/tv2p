@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/tv2")
+@RequestMapping("/api")
 public class Tv2Controller {
     final Tv2Service tv2Service;
 
