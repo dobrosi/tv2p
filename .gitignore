@@ -36,3 +36,4 @@ build/
 /LG/tv2player/app/dist/
 /LG/tv2player/app/node_modules/
 /LG/tv2player/app/.angular/
+/LG/tv2player/app/pnpm-lock.yaml

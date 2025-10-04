@@ -79,8 +79,9 @@ public class Tv2Service {
     public String getVideoUrl(String url) {
         final StringBuffer actualVideoUrl = new StringBuffer();
         getPage().onRequest(request -> {
-            if (actualVideoUrl.isEmpty() && request.url().endsWith(".m3u8")) {
-                actualVideoUrl.append(request.url());
+            final String videoUrl = request.url();
+            if (actualVideoUrl.isEmpty() && videoUrl.contains("chunk") && videoUrl.endsWith(".m3u8")) {
+                actualVideoUrl.append(videoUrl);
             }
         });
         getPage().navigate("https://tv2play.hu" + url);
@@ -108,7 +109,11 @@ public class Tv2Service {
                 .chromium()
                 .launchPersistentContext(
                     Paths.get("playwright-user-data"),
-                    new BrowserType.LaunchPersistentContextOptions().setHeadless(playwrigthConfiguration.isHeadless())
+                    new BrowserType
+                            .LaunchPersistentContextOptions()
+                            .setChannel("chrome")
+                            .setHeadless(playwrigthConfiguration
+                                                 .isHeadless())
                 );
             internalPage = browser.newPage();
         }
