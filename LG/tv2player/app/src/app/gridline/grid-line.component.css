@@ -1,0 +1,25 @@
+.button-row {
+  display: flex;
+  justify-content: left;
+  width: 100%;
+  margin-bottom: 10px;
+  overflow: auto;
+}
+
+.button-row::-webkit-scrollbar {
+  display: none;                /* Chrome, Safari */
+}
+
+.row-title {
+  font-size: 24px;
+}
+
+button {
+  width: 400px;
+  min-width: 400px;
+  margin: 10px 10px 0 0;
+}
+
+button:focus {
+  border: 5px solid yellow;
+}

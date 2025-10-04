@@ -1,0 +1,14 @@
+.header {
+  position: fixed;
+  padding-top: 10px;
+  padding-left: 40px;
+  background: rgb(19, 20, 40);
+  height: 70px;
+  width: 100%;
+  vertical-align: center;
+}
+
+button.search {
+  width: 58px;
+  height: 58px;
+}

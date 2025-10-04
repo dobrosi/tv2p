@@ -1,0 +1,21 @@
+html, body { height: 100%; }
+body {
+  overflow: hidden;
+  width: 100%;
+  background: rgb(19, 20, 40);
+  color: white;
+  font-family: 'Quicksand', serif;
+}
+
+form {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+button {
+  padding: 0px;
+  font-size: 16px;
+  background-color: rgb(30, 29, 47);
+  color: white;
+  font-weight: 700;
+}

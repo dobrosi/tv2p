@@ -31,3 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
+/playwright-user-data/
+/LG/tv2player/.angular/
+/LG/tv2player/app/dist/
+/LG/tv2player/app/node_modules/
+/LG/tv2player/app/.angular/

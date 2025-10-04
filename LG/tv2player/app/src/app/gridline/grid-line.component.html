@@ -1,0 +1,8 @@
+<div class="row-title">{{ siteRow.title }}</div>
+<div class="button-row">
+  <button *ngFor="let siteItem of siteRow.siteItems"
+          [ngClass]="{ 'selected': siteItem.selected }"
+          [appAutofocus]="siteItem.selected">
+    <app-griditem [siteItem]="siteItem"></app-griditem>
+  </button>
+</div>
