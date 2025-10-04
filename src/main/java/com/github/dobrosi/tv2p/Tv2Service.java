@@ -111,7 +111,7 @@ public class Tv2Service {
                     Paths.get("playwright-user-data"),
                     new BrowserType
                             .LaunchPersistentContextOptions()
-                            .setChannel("chrome")
+                            .setChannel("chromium")
                             .setHeadless(playwrigthConfiguration
                                                  .isHeadless())
                 );
