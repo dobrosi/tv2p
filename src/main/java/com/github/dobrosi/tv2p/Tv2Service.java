@@ -49,7 +49,7 @@ public class Tv2Service {
     }
 
     @ManagedOperation
-    @CacheEvict(value = {"load", "search", "mainSite"}, allEntries = true)
+    @CacheEvict(value = {"load", "search", "mainSite", "videoUrl"}, allEntries = true)
     public void init() {
     }
 
@@ -89,7 +89,7 @@ public class Tv2Service {
         do {
             getPage().waitForTimeout(500);
         } while (actualVideoUrl.isEmpty() && counter++ < 10);
-        getPage().onRequest(null);
+ //       getPage().onRequest(null);
         String res = actualVideoUrl.toString();
         close();
         return res;
@@ -111,7 +111,7 @@ public class Tv2Service {
                     Paths.get("playwright-user-data"),
                     new BrowserType
                             .LaunchPersistentContextOptions()
-                            .setChannel("chromium")
+                            .setChannel("chrome")
                             .setHeadless(playwrigthConfiguration
                                                  .isHeadless())
                 );

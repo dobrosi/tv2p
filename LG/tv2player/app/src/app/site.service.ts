@@ -1,15 +1,14 @@
 import {Injectable} from '@angular/core';
 import {Site} from "./interface/site";
+import {VideoUrl} from "./interface/videourl";
 
 @Injectable({
   providedIn: 'root'
 })
+
 export class SiteService {
-
-  url: string = "http://localhost:8085/tv2/"
-
   getSite(): Promise<Site> {
-    return this.get('get')
+    return this.get('load')
   }
 
   search(value: string) {
@@ -18,6 +17,12 @@ export class SiteService {
 
   async get(url: string) {
     history.pushState({}, '', url);
-    return await (await fetch(this.url + url)).json() ?? [];
+    return await (await fetch(baseUrl + url)).json() ?? [];
+  }
+
+  async getUrl(url: string): Promise<VideoUrl> {
+    return await (await fetch(baseUrl + 'getVideoUrl?url=' + url)).json();
   }
 }
+
+export const baseUrl = "http://localhost:8085/api/"
