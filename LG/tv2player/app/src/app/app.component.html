@@ -1,8 +1,10 @@
+<!--
 <app-header (clicked)="search($event)"/>
+-->
 <div class="content">
   <app-grid/>
 </div>
 
-<app-video *ngIf="showVideo"></app-video>
+<app-video *ngIf="visibleVideo"></app-video>
 
 <router-outlet />

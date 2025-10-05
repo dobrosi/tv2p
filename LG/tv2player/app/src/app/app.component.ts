@@ -6,11 +6,9 @@ import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import {MatInputModule} from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
-import {HeaderComponent} from "./header/header.component";
 import {GridComponent} from "./grid/grid.component";
-import {SiteItem} from "./interface/siteitem";
-import Hls from "hls.js";
 import {VideoComponent} from "./video/video.component";
+import {OverlayService} from "./overlay.service";
 import {NgIf} from "@angular/common";
 
 @Component({
@@ -24,7 +22,6 @@ import {NgIf} from "@angular/common";
     MatInputModule,
     MatAutocompleteModule,
     ReactiveFormsModule,
-    HeaderComponent,
     GridComponent,
     VideoComponent,
     NgIf
@@ -36,29 +33,14 @@ export class AppComponent {
 
   @ViewChild(GridComponent) grid!: GridComponent;
 
-  showVideo = false;
+  visibleVideo = false;
 
-  async playVideo(siteItem: SiteItem) {
-    console.log("clicked" + siteItem.url);
-    const video = document.getElementById('videoPlayer') as HTMLVideoElement;
+  constructor(private overlayService: OverlayService) {
+    this.overlayService.visible$.subscribe((url) => this.visibleVideo = url != undefined);
 
-    const url = await this.siteService.getUrl(siteItem.url);
-    console.log(url);
-
-    if (Hls.isSupported()) {
-      const hls = new Hls();
-      hls.loadSource(url.value);
-      hls.attachMedia(video);
-      hls.startLoad();
-    } else {
-      video.src = url.value;
-    }
-    this.showVideo = true;
-  }
-
-  constructor() {
     this.siteService.getSite().then((site: Site) => {
       this.grid.siteRows = site.siteRows
+      this.grid.select()
     });
   }
 

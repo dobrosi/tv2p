@@ -41,7 +41,7 @@ export class GridComponent {
     this.select()
   }
 
-  private select() {
+  select() {
     this.rowIndex = Math.min(this.rowIndex, this.siteRows.length - 1)
     this.rowIndex = Math.max(this.rowIndex, 0)
     this.colIndex = Math.min(this.colIndex, this.siteRows[this.rowIndex].siteItems.length - 1)

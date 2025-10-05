@@ -5,9 +5,8 @@ import {SiteItem} from "../interface/siteitem";
 import {NgClass, NgForOf} from "@angular/common";
 import {GridItemComponent} from "../griditem/grid-item.component";
 import {AutofocusDirective} from "../directive/autofocus.driective";
-import Hls from "hls.js";
 import {SiteService} from "../site.service";
-import {AppComponent} from "../app.component";
+import {OverlayService} from "../overlay.service";
 
 @Component({
   selector: 'app-gridline',
@@ -24,9 +23,12 @@ import {AppComponent} from "../app.component";
 export class GridLineComponent {
   @Input() siteRow!: SiteRow
 
-  appComponent: AppComponent = inject(AppComponent);
+  siteService: SiteService = inject(SiteService);
+  overlayService: OverlayService = inject(OverlayService);
 
   async clicked(siteItem: SiteItem) {
-    await this.appComponent.playVideo(siteItem)
+    const url = (await this.siteService.getUrl(siteItem.url)).value;
+    console.log("URL:" + url);
+    this.overlayService.show(url)
   }
 }

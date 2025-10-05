@@ -1,5 +1,8 @@
-server.port: 8085
-playwright.headless: true
+server:
+  port: 8085
+  servlet:
+    context-path: /tv2
+playwright.headless: false
 
 spring:
   autoconfigure:
