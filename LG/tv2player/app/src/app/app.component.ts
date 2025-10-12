@@ -1,4 +1,4 @@
-import {Component, inject, ViewChild} from '@angular/core';
+import {Component, HostListener, inject, ViewChild} from '@angular/core';
 import {SiteService} from './site.service';
 import {RouterOutlet} from "@angular/router";
 import {Site} from "./interface/site";
@@ -11,6 +11,7 @@ import {VideoComponent} from "./video/video.component";
 import {OverlayService} from "./overlay.service";
 import {NgIf} from "@angular/common";
 import {HeaderComponent} from "./header/header.component";
+import {log} from "./util";
 
 @Component({
   selector: 'app-root',
@@ -36,7 +37,6 @@ export class AppComponent {
   @ViewChild(GridComponent) grid!: GridComponent;
   @ViewChild(HeaderComponent) header!: HeaderComponent
 
-
   visibleVideo = false;
 
   constructor(private overlayService: OverlayService) {
@@ -50,14 +50,29 @@ export class AppComponent {
     })
 
     this.siteService.getSite().then((site: Site) => {
-      this.grid.siteRows = site.siteRows
-      setTimeout(() => this.grid.select())
+      this.grid.init(site.siteRows, "/")
+      this.grid.unselect = () => this.header.focus()
+      this.header.unselect = () => this.grid.select()
     });
   }
 
   search(text: string) {
     this.siteService.search(text).then((site: Site) => {
-      this.grid.init(site.siteRows)
+      this.grid.init(site.siteRows, "/search?text=" + text)
     });
+  }
+
+  @HostListener('keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent) {
+    log('Gomb key: ' + event.key + ", code: " + event.code);
+  }
+
+  @HostListener('window:popstate', ['$event'])
+  onPopState(event: PopStateEvent) {
+    console.log('URL változott:', location.pathname);
+    console.log("state: " + JSON.stringify(event.state))
+    if (event.state) {
+      this.grid.init(event.state)
+    }
   }
 }

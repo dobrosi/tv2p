@@ -1,8 +1,6 @@
-html, body { height: 100%; }
+
 body {
-  overflow: hidden;
-  margin: 0;
-  width: 100%;
+  overflow: auto;
   background: rgb(19, 20, 40);
   color: white;
   font-family: 'Quicksand', serif;

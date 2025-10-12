@@ -16,7 +16,6 @@ export class SiteService {
   }
 
   async get(url: string) {
-    history.pushState({}, '', url);
     return await (await fetch(baseUrl + url)).json() ?? [];
   }
 

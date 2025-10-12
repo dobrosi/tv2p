@@ -14,12 +14,10 @@ import {GridLineComponent} from "../gridline/grid-line.component";
   styleUrl: './grid.component.css'
 })
 export class GridComponent {
-  @ViewChild('grid') gridElement!: ElementRef<HTMLDivElement>;
-
   siteRows: SiteRow[] = []
-
-  rowIndex = 0
-  colIndex = 0
+  @ViewChild('grid') private gridElement!: ElementRef<HTMLDivElement>
+  private rowIndex = 0
+  private colIndex = 0
 
   down() {
     this.rowIndex++
@@ -29,13 +27,7 @@ export class GridComponent {
 
   up() {
     this.rowIndex--
-    this.colIndex=0;
-    if (this.rowIndex >= 0) {
-      this.select()
-    } else {
-      this.rowIndex = 0
-      this.unselect()
-    }
+    this.select()
   }
 
   right() {
@@ -49,20 +41,20 @@ export class GridComponent {
   }
 
   select() {
-    this.rowIndex = Math.min(this.rowIndex, this.siteRows.length - 1)
-    this.rowIndex = Math.max(this.rowIndex, 0)
-    this.colIndex = Math.min(this.colIndex, this.siteRows[this.rowIndex].siteItems.length - 1)
-    this.colIndex = Math.max(this.colIndex, 0)
-    this.focus()
-  }
-
-  unselect() {
-
+    if (this.rowIndex < 0) {
+      this.rowIndex = 0
+      this.unselect()
+    } else if (this.colIndex < 0) {
+      this.colIndex = 0
+    } else {
+      this.rowIndex = Math.min(this.rowIndex, this.siteRows.length - 1)
+      this.colIndex = Math.min(this.colIndex, this.siteRows[this.rowIndex].siteItems.length - 1)
+      this.focus()
+    }
   }
 
   focus() {
-    const button = document.querySelectorAll('.row')[this.rowIndex]
-      .querySelectorAll('.cell')[this.colIndex] as HTMLButtonElement;
+    const button = this.getButton()
     button.focus()
 
     button.scrollIntoView({
@@ -72,11 +64,26 @@ export class GridComponent {
     });
   }
 
-  init(siteRows: SiteRow[]) {
+  getButton() {
+    return document.querySelectorAll('.row')[this.rowIndex]
+      .querySelectorAll('.cell')[this.colIndex] as HTMLButtonElement
+  }
+
+  init(siteRows: SiteRow[], key: string | undefined = undefined) {
     this.siteRows = siteRows
     document.body.scroll(0, 0)
     this.rowIndex = 0
     this.colIndex = 0
     setTimeout(() => this.select())
+    if (key) {
+      history.pushState(siteRows, "", document.location.href)
+    }
   }
+
+  unselect() {}
+
+  back() {
+    history.back()
+  }
+
 }

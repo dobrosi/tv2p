@@ -1,1 +1,8 @@
-
+#logger {
+  position: fixed;
+  width: 600px;
+  padding: 3px;
+  height: 25px;
+  left: 500px;
+  background: gray;
+}

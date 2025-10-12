@@ -50,4 +50,10 @@ export class HeaderComponent {
     Appstorage.get().history = options
     Appstorage.save()
   }
+
+  focus() {
+    this.searchText.nativeElement.click()
+  }
+
+  unselect() {}
 }

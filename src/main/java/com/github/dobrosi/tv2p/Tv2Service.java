@@ -106,12 +106,11 @@ public class Tv2Service {
         lastAccess = System.currentTimeMillis();
         if (internalPage == null) {
             browser = Playwright.create()
-                .chromium()
+                .firefox()
                 .launchPersistentContext(
                     Paths.get("playwright-user-data"),
                     new BrowserType
                             .LaunchPersistentContextOptions()
-                            .setChannel("chrome")
                             .setHeadless(playwrigthConfiguration
                                                  .isHeadless())
                 );

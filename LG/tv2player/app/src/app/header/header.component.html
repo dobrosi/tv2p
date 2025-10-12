@@ -7,6 +7,7 @@
              [formControl]="myControl"
              [matAutocomplete]="auto"
              (keydown.enter)="search()"
+             (keydown.escape)="unselect()"
              (focus)="startSearch()"
       >
       <mat-autocomplete #auto="matAutocomplete">

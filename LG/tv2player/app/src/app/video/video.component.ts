@@ -34,11 +34,13 @@ export class VideoComponent implements AfterViewInit, OnDestroy {
   handleKeyDown(event: KeyboardEvent) {
     if (event.key === 'Backspace') {
       this.close()
+    } else if (event.key === 'Space') {
+      this.playPause()
     }
   }
 
   async ngAfterViewInit() {
-    history.pushState(null, '', location.href + '#video');
+    history.pushState(null, '', "video");
     this.overlayServiceSubscription = this.overlayService.visible$.subscribe((o) => this.url = o.payload);
     this.routerSub = this.router.events.subscribe(event => {
       if (event.type >= 8) {
@@ -49,6 +51,7 @@ export class VideoComponent implements AfterViewInit, OnDestroy {
     this.video = this.videoRef.nativeElement;
     this.lastFocusedElement = document.activeElement as HTMLElement | null;
     this.video.requestFullscreen().then(() => {})
+    this.video.focus()
     this.video.addEventListener('ended', () => {
       this.close();
     });
@@ -63,10 +66,10 @@ export class VideoComponent implements AfterViewInit, OnDestroy {
       } else {
         this.video.src = url
       }
-
     } else {
       this.video.pause();
     }
+
   }
 
   ngOnDestroy() {
@@ -76,8 +79,10 @@ export class VideoComponent implements AfterViewInit, OnDestroy {
   }
 
   private close() {
-    console.log('Back gomb a MyComponent-ben!');
-
     this.overlayService.hide(this.lastFocusedElement)
+  }
+
+  private playPause() {
+    this.video?.paused ? this.video?.play() : this.video?.pause()
   }
 }
