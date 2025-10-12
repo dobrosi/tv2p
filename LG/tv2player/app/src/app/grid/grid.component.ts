@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ElementRef, ViewChild} from '@angular/core';
 import {SiteRow} from "../interface/siterow";
 import {NgForOf} from "@angular/common";
 import {GridLineComponent} from "../gridline/grid-line.component";
@@ -14,6 +14,8 @@ import {GridLineComponent} from "../gridline/grid-line.component";
   styleUrl: './grid.component.css'
 })
 export class GridComponent {
+  @ViewChild('grid') gridElement!: ElementRef<HTMLDivElement>;
+
   siteRows: SiteRow[] = []
 
   rowIndex = 0
@@ -28,7 +30,12 @@ export class GridComponent {
   up() {
     this.rowIndex--
     this.colIndex=0;
-    this.select()
+    if (this.rowIndex >= 0) {
+      this.select()
+    } else {
+      this.rowIndex = 0
+      this.unselect()
+    }
   }
 
   right() {
@@ -46,16 +53,23 @@ export class GridComponent {
     this.rowIndex = Math.max(this.rowIndex, 0)
     this.colIndex = Math.min(this.colIndex, this.siteRows[this.rowIndex].siteItems.length - 1)
     this.colIndex = Math.max(this.colIndex, 0)
-    this.siteRows.forEach((siteRow: SiteRow) => this.unselectItems(siteRow))
-    this.selectItem(this.siteRows[this.rowIndex], this.colIndex)
+    this.focus()
   }
 
-  private unselectItems(siteRow: SiteRow) {
-    siteRow.siteItems.forEach(i => i.selected = false)
+  unselect() {
+
   }
 
-  private selectItem(siteRow: SiteRow, colIndex: number) {
-    siteRow.siteItems[colIndex].selected = true
+  focus() {
+    const button = document.querySelectorAll('.row')[this.rowIndex]
+      .querySelectorAll('.cell')[this.colIndex] as HTMLButtonElement;
+    button.focus()
+
+    button.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+      inline: 'nearest'
+    });
   }
 
   init(siteRows: SiteRow[]) {
@@ -63,6 +77,6 @@ export class GridComponent {
     document.body.scroll(0, 0)
     this.rowIndex = 0
     this.colIndex = 0
-    this.select()
+    setTimeout(() => this.select())
   }
 }

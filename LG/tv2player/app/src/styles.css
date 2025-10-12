@@ -1,6 +1,7 @@
 html, body { height: 100%; }
 body {
   overflow: hidden;
+  margin: 0;
   width: 100%;
   background: rgb(19, 20, 40);
   color: white;
@@ -13,7 +14,6 @@ form {
 }
 
 button {
-  padding: 0px;
   font-size: 16px;
   background-color: rgb(30, 29, 47);
   color: white;

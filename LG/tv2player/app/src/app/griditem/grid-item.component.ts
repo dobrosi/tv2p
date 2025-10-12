@@ -2,7 +2,7 @@ import {Component, Input} from '@angular/core';
 import {SiteItem} from "../interface/siteitem";
 
 @Component({
-  selector: 'app-griditem',
+  selector: 'app-grid-item',
   standalone: true,
   imports: [],
   templateUrl: './grid-item.component.html',

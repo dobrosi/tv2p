@@ -1,5 +1,5 @@
-<div *ngFor="let siteRow of siteRows"
+<div #grid class="grid" tabindex="0" *ngFor="let siteRow of siteRows"
      (keydown.arrowDown)="down()" (keydown.arrowUp)="up()"
      (keydown.arrowLeft)="left()" (keydown.arrowRight)="right()">
-  <app-gridline [siteRow]="siteRow"></app-gridline>
+  <app-gridline class="row" [siteRow]="siteRow"></app-gridline>
 </div>

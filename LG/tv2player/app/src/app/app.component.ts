@@ -10,6 +10,7 @@ import {GridComponent} from "./grid/grid.component";
 import {VideoComponent} from "./video/video.component";
 import {OverlayService} from "./overlay.service";
 import {NgIf} from "@angular/common";
+import {HeaderComponent} from "./header/header.component";
 
 @Component({
   selector: 'app-root',
@@ -24,7 +25,8 @@ import {NgIf} from "@angular/common";
     ReactiveFormsModule,
     GridComponent,
     VideoComponent,
-    NgIf
+    NgIf,
+    HeaderComponent
   ],
   styleUrls: ['./app.component.css']
 })
@@ -32,15 +34,24 @@ export class AppComponent {
   siteService: SiteService = inject(SiteService);
 
   @ViewChild(GridComponent) grid!: GridComponent;
+  @ViewChild(HeaderComponent) header!: HeaderComponent
+
 
   visibleVideo = false;
 
   constructor(private overlayService: OverlayService) {
-    this.overlayService.visible$.subscribe((url) => this.visibleVideo = url != undefined);
+    this.overlayService.visible$.subscribe((o) => {
+      this.visibleVideo = o.show
+
+      const payload = o.payload
+      if (payload instanceof HTMLElement) {
+        setTimeout(() => this.grid.focus())
+      }
+    })
 
     this.siteService.getSite().then((site: Site) => {
       this.grid.siteRows = site.siteRows
-      this.grid.select()
+      setTimeout(() => this.grid.select())
     });
   }
 

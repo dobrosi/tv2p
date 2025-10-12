@@ -3,6 +3,7 @@ import Hls from "hls.js";
 import {OverlayService} from "../overlay.service";
 import {Subscription} from "rxjs";
 import {Router} from "@angular/router";
+import {VideoUrl} from "../interface/videourl";
 
 @Component({
   selector: 'app-video',
@@ -13,13 +14,16 @@ import {Router} from "@angular/router";
 export class VideoComponent implements AfterViewInit, OnDestroy {
   @ViewChild('videoPlayer') private videoRef!: ElementRef<HTMLVideoElement>;
 
-  private url: string | undefined;
+  private url: Promise<VideoUrl> | undefined;
 
   private overlayServiceSubscription?: Subscription
 
   private routerSub?: Subscription;
 
   private video?: HTMLVideoElement
+
+
+  private lastFocusedElement: HTMLElement | undefined | null
 
   constructor(
       private overlayService: OverlayService,
@@ -33,9 +37,9 @@ export class VideoComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  ngAfterViewInit() {
+  async ngAfterViewInit() {
     history.pushState(null, '', location.href + '#video');
-    this.overlayServiceSubscription = this.overlayService.visible$.subscribe((url) => this.url = url);
+    this.overlayServiceSubscription = this.overlayService.visible$.subscribe((o) => this.url = o.payload);
     this.routerSub = this.router.events.subscribe(event => {
       if (event.type >= 8) {
         this.close()
@@ -43,15 +47,23 @@ export class VideoComponent implements AfterViewInit, OnDestroy {
     });
 
     this.video = this.videoRef.nativeElement;
+    this.lastFocusedElement = document.activeElement as HTMLElement | null;
+    this.video.requestFullscreen().then(() => {})
+    this.video.addEventListener('ended', () => {
+      this.close();
+    });
+
     if (this.url) {
+      const url = (await this.url).value as string;
       if (Hls.isSupported()) {
         const hls = new Hls()
-        hls.loadSource(this.url)
+        hls.loadSource(url)
         hls.attachMedia(this.video)
         hls.startLoad()
       } else {
-        this.video.src = this.url
+        this.video.src = url
       }
+
     } else {
       this.video.pause();
     }
@@ -59,12 +71,13 @@ export class VideoComponent implements AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     this.video?.pause()
-   this.routerSub?.unsubscribe();
-   this.overlayServiceSubscription?.unsubscribe()
+    this.routerSub?.unsubscribe();
+    this.overlayServiceSubscription?.unsubscribe()
   }
 
   private close() {
     console.log('Back gomb a MyComponent-ben!');
-    this.overlayService.hide()
+
+    this.overlayService.hide(this.lastFocusedElement)
   }
 }

@@ -77,20 +77,20 @@ public class Tv2Service {
 
     @ManagedOperation
     public String getVideoUrl(String url) {
-        final StringBuffer actualVideoUrl = new StringBuffer();
+        List<String> actualVideoUrls = new ArrayList<>();
         getPage().onRequest(request -> {
             final String videoUrl = request.url();
-            if (actualVideoUrl.isEmpty() && videoUrl.contains("chunk") && videoUrl.endsWith(".m3u8")) {
-                actualVideoUrl.append(videoUrl);
+            if (videoUrl.contains("chunk") && videoUrl.endsWith(".m3u8")) {
+                actualVideoUrls.add(videoUrl);
             }
         });
         getPage().navigate("https://tv2play.hu" + url);
         int counter = 0;
         do {
             getPage().waitForTimeout(500);
-        } while (actualVideoUrl.isEmpty() && counter++ < 10);
+        } while (actualVideoUrls.size() < 3 && counter++ < 10);
  //       getPage().onRequest(null);
-        String res = actualVideoUrl.toString();
+        String res = actualVideoUrls.get(1);
         close();
         return res;
     }

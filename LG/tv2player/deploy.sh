@@ -1,1 +1,1 @@
-ares-install *.ipk -d nappali2
+ares-install *.ipk -d andris
