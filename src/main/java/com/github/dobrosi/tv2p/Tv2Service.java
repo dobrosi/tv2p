@@ -14,21 +14,25 @@ import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
-import com.microsoft.playwright.Playwright;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import static com.microsoft.playwright.Playwright.create;
 
 @Data
 @Service
 @ManagedResource(
     objectName="Tv2pBeans:name=Tv2Service",
     description="Tv2Service Bean")
+@Slf4j
 public class Tv2Service {
     private final CacheManager cacheManager;
     private final PlaywrigthConfiguration playwrigthConfiguration;
@@ -39,7 +43,6 @@ public class Tv2Service {
 
     private static Page internalPage;
     private BrowserContext browser;
-    private Site mainSite;
     private long lastAccess;
 
     @Autowired
@@ -49,33 +52,33 @@ public class Tv2Service {
     }
 
     @ManagedOperation
-    @CacheEvict(value = {"load", "search", "mainSite", "videoUrl"}, allEntries = true)
+    @CacheEvict(value = {"load", "search", "mainSite"}, allEntries = true)
     public void init() {
     }
 
-    public void close() {
-        if (browser != null) {
-            browser.close();
-        }
-        internalPage = null;
-        browser = null;
+    @ManagedOperation
+    @CacheEvict(value = {"videoUrl"}, allEntries = true)
+    public void initVideoUrls() {
     }
 
+    public void close() {
+    }
+
+    @Cacheable(value = "load", key = "#url == null ? '' : #url")
     @ManagedOperation
     public Site loadSite(String url) {
-        Site site = buildSite(DEFAULT_URL + (url == null ? "" : url));
-        if (url == null || url.isEmpty()) {
-            mainSite = site;
-        }
-        return site;
+        log.info("Create site, url: {}", url);
+        return buildSite(DEFAULT_URL + (url == null ? "" : url));
     }
 
+    @Cacheable(value = "search", key = "#text")
     @ManagedOperation
     public Site search(String text) {
         return buildSite(SEARCH_URL + text);
     }
 
     @ManagedOperation
+    @Cacheable(value = "videoUrl", key = "#url")
     public String getVideoUrl(String url) {
         List<String> actualVideoUrls = new ArrayList<>();
         getPage().onRequest(request -> {
@@ -104,8 +107,8 @@ public class Tv2Service {
 
     private Page getPage() {
         lastAccess = System.currentTimeMillis();
-        if (internalPage == null) {
-            browser = Playwright.create()
+        if (internalPage == null || internalPage.isClosed()) {
+            browser = create()
                 .firefox()
                 .launchPersistentContext(
                     Paths.get("playwright-user-data"),
@@ -114,7 +117,7 @@ public class Tv2Service {
                             .setHeadless(playwrigthConfiguration
                                                  .isHeadless())
                 );
-            internalPage = browser.newPage();
+            internalPage = browser.pages().get(0);
         }
         return internalPage;
     }
@@ -174,7 +177,7 @@ public class Tv2Service {
 
     private void scrollDown() {
         int maxScrolls = 50;
-        int delayMs = 500;
+        int delayMs = 200;
 
         for (int i = 0; i < maxScrolls; i++) {
             getPage().evaluate("window.scrollBy(0, window.innerHeight);");
@@ -198,11 +201,13 @@ public class Tv2Service {
         String title = "";
         if (withTitle) {
             title = getTitle(s);
+            log.info("Create row, title: {}", title);
             if (title.toLowerCase()
                 .contains("műsorok")) {
                 return new SiteRow(title, null, null, getChannelItems(s));
             }
         } else {
+            log.info("Create row");
             return new SiteRow(title, null, getShowAllUrl(s), getItems(s, ".hpkJli"));
         }
         return new SiteRow(title, null, getShowAllUrl(s), getItems(s, ".jyYozc"));
@@ -225,11 +230,18 @@ public class Tv2Service {
     }
 
     private SiteItem getItem(Locator i) {
+        final String itemTitle;
+        final String imageUrl;
+        final String url = getUrl(i);
         if (!i.textContent().contains("Mutasd")) {
-            return new SiteItem(getItemTitle(i), getImageUrl(i, ".fbOoTV"), getUrl(i));
+            itemTitle = getItemTitle(i);
+            imageUrl = getImageUrl(i, ".fbOoTV");
         } else {
-            return new SiteItem("Mutasd mindet!", null, getUrl(i));
+            itemTitle = "Mutasd mindet!";
+            imageUrl = null;
         }
+        log.info("Create item, title: {}", itemTitle);
+        return new SiteItem(itemTitle, imageUrl, url);
     }
 
     private SiteItem getChannelItem(Locator i) {

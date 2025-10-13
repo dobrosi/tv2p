@@ -1,13 +1,15 @@
 package com.github.dobrosi.tv2p.controller;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import com.github.dobrosi.tv2p.Tv2Service;
 import com.github.dobrosi.tv2p.model.Site;
+import com.github.dobrosi.tv2p.model.SiteItem;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,28 +31,37 @@ public class Tv2Controller {
     public void init() {
         tv2Service.init();
     }
-    
-    @GetMapping("/get")
-    public Site getMainSite() {
-        return tv2Service.getMainSite();
+
+    @GetMapping("/initVideoUrls")
+    public void initFull() {
+        tv2Service.initVideoUrls();
     }
 
-    @Cacheable(value = "load", key = "#url == null ? '' : #url")
     @GetMapping("/load")
     public Site loadSite(@RequestParam(value = "url", required = false) String url ) {
         return tv2Service.loadSite(url);
     }
 
-    @Cacheable(value = "search", key = "#text")
     @GetMapping("/search")
     public Site search(@RequestParam(value = "text") String text ) {
         return tv2Service.search(text);
     }
 
-    @Cacheable(value = "videoUrl", key = "#url")
     @GetMapping("/getVideoUrl")
     public Response getVideoUrl(@RequestParam("url") String url) {
         return new Response(tv2Service.getVideoUrl(url));
+    }
+
+    @GetMapping("/getVideoUrls")
+    public List<Response> getVideoUrls(@RequestParam("rowLimit") int rowLimit) {
+        return loadSite(null)
+                .getSiteRows()
+                .stream()
+                .limit(rowLimit)
+                .flatMap(row -> row.getSiteItems().stream())
+                .map(SiteItem::getUrl)
+                .map(this::getVideoUrl)
+                .collect(Collectors.toList());
     }
 
     @Data
