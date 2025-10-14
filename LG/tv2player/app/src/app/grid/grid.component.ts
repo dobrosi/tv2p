@@ -58,8 +58,8 @@ export class GridComponent {
     button.focus()
 
     button.scrollIntoView({
-      behavior: 'smooth',
-      block: 'center',
+      behavior: 'instant',
+      block: 'nearest',
       inline: 'nearest'
     });
   }
