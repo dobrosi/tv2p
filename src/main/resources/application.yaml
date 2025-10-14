@@ -20,7 +20,7 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   pid:
-    file: app.pid
+    file: tv2p.pid
 springdoc:
   swagger-ui:
     path: /
