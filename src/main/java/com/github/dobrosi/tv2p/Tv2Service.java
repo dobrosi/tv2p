@@ -116,7 +116,7 @@ public class Tv2Service {
         }
     }
 
-    private Page getBrowserPage() {
+    private synchronized Page getBrowserPage() {
         lastAccess = currentTimeMillis();
         if (browserPage == null || browserPage.isClosed()) {
             browser = create()
