@@ -97,6 +97,7 @@ public class Tv2Service {
 
         String res = getActualVideoUrl(actualVideoUrls);
         close();
+        log.info("getVideoUrl, response: {}", res);
         return res;
     }
 
@@ -283,6 +284,7 @@ public class Tv2Service {
     }
 
     private String getShowAllUrl(Locator s) {
+        log.info("getShowAllUrl, {}", s);
         /*
         final Locator locator = s.locator(".emkegV > div:nth-child(2)");
         return !isEmpty(locator.textContent().trim()) ? locator.locator("a").getAttribute("href") : null;
