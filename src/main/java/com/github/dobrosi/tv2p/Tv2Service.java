@@ -22,6 +22,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
+import org.springframework.lang.NonNull;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -67,7 +68,6 @@ public class Tv2Service {
     @Cacheable(value = "load", key = "#url == null ? '' : #url")
     @ManagedOperation
     public Site loadSite(String url) {
-        log.info("Create site, url: {}", url);
         return buildSite(DEFAULT_URL + (url == null ? "" : url));
     }
 
@@ -79,7 +79,8 @@ public class Tv2Service {
 
     @ManagedOperation
     @Cacheable(value = "videoUrl", key = "#url")
-    public String getVideoUrl(String url) {
+    public String getVideoUrl(@NonNull String url) {
+        log.info("getVideoUrl, url: {}", url);
         List<String> actualVideoUrls = new ArrayList<>();
         getPage().onRequest(request -> {
             final String videoUrl = request.url();
@@ -93,9 +94,14 @@ public class Tv2Service {
             getPage().waitForTimeout(500);
         } while (actualVideoUrls.size() < 3 && counter++ < 10);
  //       getPage().onRequest(null);
-        String res = actualVideoUrls.get(1);
+
+        String res = getActualVideoUrl(actualVideoUrls);
         close();
         return res;
+    }
+
+    private String getActualVideoUrl(List<String> urls) {
+        return urls.isEmpty() ? null : urls.get(urls.size() == 1 ? 0 : 1);
     }
 
     @Scheduled(cron = "30 * * * * *")
@@ -123,6 +129,7 @@ public class Tv2Service {
     }
 
     private Site buildSite(String url) {
+        log.info("Create site, url: {}", url);
         getPage().navigate(url);
         String pageLocator;
         boolean withTitle;

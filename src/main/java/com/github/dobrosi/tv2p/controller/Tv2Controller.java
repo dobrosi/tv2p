@@ -2,6 +2,7 @@ package com.github.dobrosi.tv2p.controller;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.github.dobrosi.tv2p.Tv2Service;
@@ -9,6 +10,7 @@ import com.github.dobrosi.tv2p.model.Site;
 import com.github.dobrosi.tv2p.model.SiteItem;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api")
@@ -49,7 +52,7 @@ public class Tv2Controller {
 
     @GetMapping("/getVideoUrl")
     public Response getVideoUrl(@RequestParam("url") String url) {
-        return new Response(tv2Service.getVideoUrl(url));
+        return new Response(url != null ? tv2Service.getVideoUrl(url) : null);
     }
 
     @GetMapping("/getVideoUrls")
@@ -60,6 +63,7 @@ public class Tv2Controller {
                 .limit(rowLimit)
                 .flatMap(row -> row.getSiteItems().stream())
                 .map(SiteItem::getUrl)
+                .filter(Objects::nonNull)
                 .map(this::getVideoUrl)
                 .collect(Collectors.toList());
     }
