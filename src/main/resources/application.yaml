@@ -24,3 +24,14 @@ spring:
 springdoc:
   swagger-ui:
     path: /
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    shutdown:
+      access: unrestricted
+  server:
+    port: 8086
