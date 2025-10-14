@@ -14,6 +14,7 @@ import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import jakarta.annotation.PreDestroy;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import static com.microsoft.playwright.Playwright.create;
+import static java.lang.System.currentTimeMillis;
 
 @Data
 @Service
@@ -42,7 +44,7 @@ public class Tv2Service {
     public static final String SEARCH_URL = "https://tv2play.hu/kereses?kulcsszo=";
     private static final Pattern backgroundImageUrlPattern = Pattern.compile("background-image:\\s*url\\(\"([^\"]+)\"\\)");
 
-    private static Page internalPage;
+    private static Page browserPage;
     private BrowserContext browser;
     private long lastAccess;
 
@@ -50,6 +52,12 @@ public class Tv2Service {
     public Tv2Service(final CacheManager cacheManager, final PlaywrigthConfiguration playwrigthConfiguration) {
         this.cacheManager = cacheManager;
         this.playwrigthConfiguration = playwrigthConfiguration;
+    }
+
+    @PreDestroy
+    public void destroy() {
+        log.info("destroy");
+        close();
     }
 
     @ManagedOperation
@@ -60,9 +68,6 @@ public class Tv2Service {
     @ManagedOperation
     @CacheEvict(value = {"videoUrl"}, allEntries = true)
     public void initVideoUrls() {
-    }
-
-    public void close() {
     }
 
     @Cacheable(value = "load", key = "#url == null ? '' : #url")
@@ -82,21 +87,20 @@ public class Tv2Service {
     public String getVideoUrl(@NonNull String url) {
         log.info("getVideoUrl, url: {}", url);
         List<String> actualVideoUrls = new ArrayList<>();
-        getPage().onRequest(request -> {
+        getBrowserPage().onRequest(request -> {
             final String videoUrl = request.url();
             if (videoUrl.contains("chunk") && videoUrl.endsWith(".m3u8")) {
                 actualVideoUrls.add(videoUrl);
             }
         });
-        getPage().navigate("https://tv2play.hu" + url);
+        getBrowserPage().navigate("https://tv2play.hu" + url);
         int counter = 0;
         do {
-            getPage().waitForTimeout(500);
+            getBrowserPage().waitForTimeout(500);
         } while (actualVideoUrls.size() < 3 && counter++ < 10);
  //       getPage().onRequest(null);
 
         String res = getActualVideoUrl(actualVideoUrls);
-        close();
         log.info("getVideoUrl, response: {}", res);
         return res;
     }
@@ -107,14 +111,14 @@ public class Tv2Service {
 
     @Scheduled(cron = "30 * * * * *")
     public void scheduler() {
-        if (System.currentTimeMillis() - lastAccess > 1000 * 60 * 10) { // 10 mins
+        if (currentTimeMillis() - lastAccess > 1000 * 60 * 10) { // 10 mins
             close();
         }
     }
 
-    private Page getPage() {
-        lastAccess = System.currentTimeMillis();
-        if (internalPage == null || internalPage.isClosed()) {
+    private Page getBrowserPage() {
+        lastAccess = currentTimeMillis();
+        if (browserPage == null || browserPage.isClosed()) {
             browser = create()
                 .firefox()
                 .launchPersistentContext(
@@ -124,14 +128,14 @@ public class Tv2Service {
                             .setHeadless(playwrigthConfiguration
                                                  .isHeadless())
                 );
-            internalPage = browser.pages().get(0);
+            browserPage = browser.pages().stream().findFirst().orElseThrow();
         }
-        return internalPage;
+        return browserPage;
     }
 
     private Site buildSite(String url) {
         log.info("Create site, url: {}", url);
-        getPage().navigate(url);
+        getBrowserPage().navigate(url);
         String pageLocator;
         boolean withTitle;
 
@@ -142,45 +146,47 @@ public class Tv2Service {
             pageLocator = ".eOPCjY";
             withTitle = true;
         }
-
-        getPage().waitForSelector(pageLocator);
-
+        getBrowserPage().waitForSelector(pageLocator);
         scrollDown();
-
-        final Site site = getSite(url, pageLocator, withTitle);
-        close();
-        return site;
+        return getSite(url, pageLocator, withTitle);
     }
 
     private Site getSite(String url, String pageLocator, boolean withTitle) {
         return new Site(
-            getPage().title(),
-            url,
-            getSiteRows(pageLocator, withTitle),
-            null);
+                getBrowserPage().title(),
+                url,
+                getSiteRows(pageLocator, withTitle),
+                null);
     }
 
     private List<SiteRow> getSiteRows(final String pageLocator, final boolean withTitle) {
-        List<SiteRow> rows = getPage().locator(pageLocator)
+        List<SiteRow> rows = getBrowserPage().locator(pageLocator)
             .all()
             .stream()
             .map(
                 v -> getRow(v, withTitle)
             )
             .toList();
-        if (!withTitle) {
-            final SiteRow firstRow = rows.get(0);
-            rows = new ArrayList<>();
-            int i = 0;
-            SiteRow nextRow = null;
-            for (SiteItem item : firstRow.getSiteItems()) {
-                if (i++ % 4 == 0) {
-                    rows.add(nextRow = new SiteRow(null, null, null, new ArrayList<>()));
-                }
-                nextRow.getSiteItems().add(item);
-            }
+        if (!withTitle && !rows.isEmpty()) {
+            rows = splitFirstRowItems(rows.stream().findFirst().orElseThrow().getSiteItems());
         }
+
         return rows;
+    }
+
+    private List<SiteRow> splitFirstRowItems(List<SiteItem> items) {
+        List<SiteRow> result = new ArrayList<>();
+        SiteRow current = null;
+
+        for (int i = 0; i < items.size(); i++) {
+            if (i % 4 == 0) {
+                current = new SiteRow(null, null, null, new ArrayList<>());
+                result.add(current);
+            }
+            current.getSiteItems().add(items.get(i));
+        }
+
+        return result;
     }
 
     private void scrollDown() {
@@ -188,9 +194,9 @@ public class Tv2Service {
         int delayMs = 200;
 
         for (int i = 0; i < maxScrolls; i++) {
-            getPage().evaluate("window.scrollBy(0, window.innerHeight);");
-            getPage().waitForTimeout(delayMs);
-            var atBottom = (Boolean) getPage().evaluate("""
+            getBrowserPage().evaluate("window.scrollBy(0, window.innerHeight);");
+            getBrowserPage().waitForTimeout(delayMs);
+            var atBottom = (Boolean) getBrowserPage().evaluate("""
                     () => {
                         const scrollTop = window.scrollY || document.documentElement.scrollTop;
                         const clientHeight = document.documentElement.clientHeight;
@@ -291,5 +297,17 @@ public class Tv2Service {
 
          */
         return null;
+    }
+
+    private void close() {
+        log.info("close");
+        if (browserPage != null) {
+            browserPage.close();
+            browserPage = null;
+        }
+        if (browser != null) {
+            browser.close();
+            browser = null;
+        }
     }
 }

@@ -71,6 +71,6 @@ public class Tv2Controller {
     @Data
     @AllArgsConstructor
     public static class Response implements Serializable {
-        String value;
+        Object value;
     }
 }
