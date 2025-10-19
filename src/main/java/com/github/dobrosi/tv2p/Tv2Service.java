@@ -300,12 +300,13 @@ public class Tv2Service {
     }
 
     private void close() {
-        log.info("close");
         if (browserPage != null) {
+            log.info("browserPage close");
             browserPage.close();
             browserPage = null;
         }
         if (browser != null) {
+            log.info("browser close");
             browser.close();
             browser = null;
         }

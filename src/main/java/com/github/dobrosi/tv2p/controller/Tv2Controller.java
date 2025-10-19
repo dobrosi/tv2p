@@ -41,7 +41,12 @@ public class Tv2Controller {
     }
 
     @GetMapping("/load")
-    public Site loadSite(@RequestParam(value = "url", required = false) String url ) {
+    public Site loadSite(
+            @RequestParam(value = "url", required = false) String url,
+            @RequestParam(value = "init", required = false) boolean init) {
+        if (init) {
+            tv2Service.init();
+        }
         return tv2Service.loadSite(url);
     }
 
@@ -57,7 +62,7 @@ public class Tv2Controller {
 
     @GetMapping("/getVideoUrls")
     public List<Response> getVideoUrls(@RequestParam("rowLimit") int rowLimit) {
-        return loadSite(null)
+        return loadSite(null, false)
                 .getSiteRows()
                 .stream()
                 .limit(rowLimit)
