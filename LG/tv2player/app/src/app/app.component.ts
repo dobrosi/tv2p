@@ -8,10 +8,9 @@ import {MatInputModule} from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {GridComponent} from "./grid/grid.component";
 import {VideoComponent} from "./video/video.component";
-import {OverlayService} from "./overlay.service";
-import {NgIf} from "@angular/common";
 import {HeaderComponent} from "./header/header.component";
 import {log} from "./util";
+import {VideoUrl} from "./interface/videourl";
 
 @Component({
   selector: 'app-root',
@@ -25,36 +24,24 @@ import {log} from "./util";
     MatAutocompleteModule,
     ReactiveFormsModule,
     GridComponent,
-    VideoComponent,
-    NgIf,
     HeaderComponent
   ],
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  siteService: SiteService = inject(SiteService);
-
-  @ViewChild(GridComponent) grid!: GridComponent;
+  @ViewChild(GridComponent) grid!: GridComponent
   @ViewChild(HeaderComponent) header!: HeaderComponent
+  @ViewChild(VideoComponent) video!: VideoComponent
+  siteService: SiteService = inject(SiteService)
 
-  visibleVideo = false;
-
-  constructor(private overlayService: OverlayService) {
-    this.overlayService.visible$.subscribe((o) => {
-      this.visibleVideo = o.show
-
-      const payload = o.payload
-      if (payload instanceof HTMLElement) {
-        setTimeout(() => this.grid.focus())
-      }
-    })
-
+  constructor() {
     this.siteService.getSite().then((site: Site) => {
       this.grid.init(site.siteRows, "/")
       this.grid.unselect = () => this.header.focus()
       this.header.unselect = () => this.grid.select()
-    });
+    })
   }
+
 
   search(text: string) {
     this.siteService.search(text).then((site: Site) => {
@@ -64,15 +51,43 @@ export class AppComponent {
 
   @HostListener('keydown', ['$event'])
   onKeyDown(event: KeyboardEvent) {
-    log('Gomb key: ' + event.key + ", code: " + event.code);
+    const tagName = document.activeElement?.tagName
+
+    log('k: ' + event.key + ",c:" + event.code + ",f:"+tagName);
+    if (event.key === 'Backspace') {
+      history.back()
+    }
+
+    if (tagName === "BUTTON") {
+      if (event.key === 'ArrowDown') {
+        this.grid.down()
+      } else if (event.key === 'ArrowUp') {
+        this.grid.up()
+      } else if (event.key === 'ArrowLeft') {
+        this.grid.left()
+      } else if (event.key === 'ArrowRight') {
+        this.grid.right()
+      } else if (event.key === 'Enter') {
+        this.grid.clickToItem()
+      }
+    } else
+    if (tagName === "INPUT") {
+      if (event.key === 'ArrowDown') {
+        this.grid.focus()
+      }
+    }
+    event.preventDefault();
   }
 
   @HostListener('window:popstate', ['$event'])
   onPopState(event: PopStateEvent) {
     console.log('URL változott:', location.pathname);
     console.log("state: " + JSON.stringify(event.state))
-    if (event.state) {
-      this.grid.init(event.state)
-    }
   }
+}
+
+export var videoUrl: Promise<VideoUrl>
+
+export function setVideoUrl(url: Promise<VideoUrl>) {
+  videoUrl = url
 }

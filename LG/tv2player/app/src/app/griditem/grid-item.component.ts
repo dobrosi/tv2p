@@ -10,12 +10,4 @@ import {SiteItem} from "../interface/siteitem";
 })
 export class GridItemComponent {
   @Input() siteItem!: SiteItem;
-
-  select() {
-    console.log(this.siteItem)
-  }
-
-  unselect() {
-
-  }
 }

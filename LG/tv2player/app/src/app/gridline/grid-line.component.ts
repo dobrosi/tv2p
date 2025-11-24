@@ -1,11 +1,9 @@
-import {Component, inject, Input} from '@angular/core';
+import {Component, Input} from '@angular/core';
 import {SiteRow} from "../interface/siterow";
-import {SiteItem} from "../interface/siteitem";
 
 import {NgForOf} from "@angular/common";
 import {GridItemComponent} from "../griditem/grid-item.component";
-import {SiteService} from "../site.service";
-import {OverlayService} from "../overlay.service";
+import {GridComponent} from "../grid/grid.component";
 
 @Component({
   selector: 'app-gridline',
@@ -19,11 +17,5 @@ import {OverlayService} from "../overlay.service";
 })
 export class GridLineComponent {
   @Input() siteRow!: SiteRow
-
-  siteService: SiteService = inject(SiteService);
-  overlayService: OverlayService = inject(OverlayService);
-
-  async clicked(siteItem: SiteItem) {
-    this.overlayService.show(this.siteService.getUrl(siteItem.url))
-  }
+  @Input() parent!: GridComponent;
 }

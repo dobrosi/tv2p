@@ -1,7 +1,12 @@
-import {Component, ElementRef, ViewChild} from '@angular/core';
+import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {SiteRow} from "../interface/siterow";
 import {NgForOf} from "@angular/common";
 import {GridLineComponent} from "../gridline/grid-line.component";
+import {SiteService} from "../site.service";
+import {SiteItem} from "../interface/siteitem";
+import {setVideoUrl} from "../app.component";
+import {NavigationStart, Router} from "@angular/router";
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'app-grid',
@@ -13,11 +18,29 @@ import {GridLineComponent} from "../gridline/grid-line.component";
   templateUrl: './grid.component.html',
   styleUrl: './grid.component.css'
 })
-export class GridComponent {
+export class GridComponent implements OnInit, OnDestroy {
+  private router = inject(Router)
+  siteService: SiteService = inject(SiteService);
   siteRows: SiteRow[] = []
-  @ViewChild('grid') private gridElement!: ElementRef<HTMLDivElement>
   private rowIndex = 0
   private colIndex = 0
+  private focusedElement: HTMLElement | null | undefined
+  private button: HTMLButtonElement | null | undefined
+  private sub: Subscription | undefined;
+
+  ngOnInit() {
+    this.sub = this.router.events.subscribe((event) => {
+      if (event instanceof NavigationStart && event.navigationTrigger === 'popstate') {
+        setTimeout(() => {
+          this.focusedElement?.focus()
+        })
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    this.sub?.unsubscribe();
+  }
 
   down() {
     this.rowIndex++
@@ -53,11 +76,22 @@ export class GridComponent {
     }
   }
 
-  focus() {
-    const button = this.getButton()
-    button.focus()
+  clickToItem() {
+    console.log(this.focusedElement)
+    this.button?.click()
+  }
 
-    button.scrollIntoView({
+  async selectItem(siteItem: SiteItem) {
+    this.focusedElement = document.activeElement as HTMLElement
+    setVideoUrl(this.siteService.getUrl(siteItem.url))
+    await this.router.navigate(["/video"])
+  }
+
+  focus() {
+    this.button = this.getButton()
+    this.button.focus()
+
+    this.button.scrollIntoView({
       behavior: 'instant',
       block: 'nearest',
       inline: 'nearest'
@@ -81,9 +115,4 @@ export class GridComponent {
   }
 
   unselect() {}
-
-  back() {
-    history.back()
-  }
-
 }
