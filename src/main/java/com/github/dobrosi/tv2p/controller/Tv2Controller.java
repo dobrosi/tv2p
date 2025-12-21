@@ -63,11 +63,11 @@ public class Tv2Controller {
     @GetMapping("/getVideoUrls")
     public List<Response> getVideoUrls(@RequestParam("rowLimit") int rowLimit) {
         return loadSite(null, false)
-                .getSiteRows()
+                .siteRows()
                 .stream()
                 .limit(rowLimit)
-                .flatMap(row -> row.getSiteItems().stream())
-                .map(SiteItem::getUrl)
+                .flatMap(row -> row.siteItems().stream())
+                .map(SiteItem::url)
                 .filter(Objects::nonNull)
                 .map(this::getVideoUrl)
                 .collect(Collectors.toList());

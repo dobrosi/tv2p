@@ -1,33 +1,14 @@
 package com.github.dobrosi.tv2p.model;
 
+import java.io.Serializable;
 import java.util.List;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+public record Site (
+    String title,
 
-@EqualsAndHashCode(callSuper = true)
-@Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@ToString
-public class Site extends EntityObject {
-    @Column
-    private String title;
+    String url,
 
-    @Column
-    private String url;
+    List<SiteRow> siteRows,
 
-    @OneToMany
-    private List<SiteRow> siteRows;
-
-    @OneToOne
-    private Site nextToMore;
-}
+    Site nextToMore
+) implements Serializable {}

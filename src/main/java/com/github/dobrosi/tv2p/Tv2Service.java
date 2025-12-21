@@ -17,13 +17,12 @@ import com.microsoft.playwright.Page;
 import jakarta.annotation.PreDestroy;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
-import org.springframework.lang.NonNull;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +36,6 @@ import static java.lang.System.currentTimeMillis;
     description="Tv2Service Bean")
 @Slf4j
 public class Tv2Service {
-    private final CacheManager cacheManager;
     private final PlaywrigthConfiguration playwrigthConfiguration;
 
     public static final String DEFAULT_URL = "https://tv2play.hu";
@@ -49,8 +47,7 @@ public class Tv2Service {
     private long lastAccess;
 
     @Autowired
-    public Tv2Service(final CacheManager cacheManager, final PlaywrigthConfiguration playwrigthConfiguration) {
-        this.cacheManager = cacheManager;
+    public Tv2Service(final PlaywrigthConfiguration playwrigthConfiguration) {
         this.playwrigthConfiguration = playwrigthConfiguration;
     }
 
@@ -168,7 +165,7 @@ public class Tv2Service {
             )
             .toList();
         if (!withTitle && !rows.isEmpty()) {
-            rows = splitFirstRowItems(rows.stream().findFirst().orElseThrow().getSiteItems());
+            rows = splitFirstRowItems(rows.stream().findFirst().orElseThrow().siteItems());
         }
 
         return rows;
@@ -183,7 +180,7 @@ public class Tv2Service {
                 current = new SiteRow(null, null, null, new ArrayList<>());
                 result.add(current);
             }
-            current.getSiteItems().add(items.get(i));
+            current.siteItems().add(items.get(i));
         }
 
         return result;
