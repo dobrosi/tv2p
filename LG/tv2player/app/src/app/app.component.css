@@ -1,8 +1,9 @@
-#logger {
-  position: fixed;
-  width: 600px;
-  padding: 3px;
-  height: 25px;
-  left: 500px;
-  background: gray;
+.spinner-overlay {
+  position: fixed !important;        /* teljes viewport */
+  inset: 0 !important;               /* top:0; right:0; bottom:0; left:0 */
+  display: flex;
+  align-items: center;    /* függőlegesen közép */
+  justify-content: center;/* vízszintesen közép */
+  z-index: 1000;
+  background: #000000dd;
 }

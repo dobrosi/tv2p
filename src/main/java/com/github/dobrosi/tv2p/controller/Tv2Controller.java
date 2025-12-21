@@ -57,7 +57,7 @@ public class Tv2Controller {
 
     @GetMapping("/getVideoUrl")
     public Response getVideoUrl(@RequestParam("url") String url) {
-        return new Response(url != null ? tv2Service.getVideoUrl(url) : null);
+        return new Response(tv2Service.getVideoUrl(url));
     }
 
     @GetMapping("/getVideoUrls")

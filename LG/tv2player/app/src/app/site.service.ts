@@ -20,7 +20,7 @@ export class SiteService {
   }
 
   async getUrl(url: string): Promise<VideoUrl> {
-    return await (await fetch(baseUrl + 'getVideoUrl?url=' + url)).json();
+    return (await fetch(baseUrl + 'getVideoUrl?url=' + url)).json();
   }
 }
 

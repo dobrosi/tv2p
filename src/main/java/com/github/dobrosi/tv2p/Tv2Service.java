@@ -3,6 +3,7 @@ package com.github.dobrosi.tv2p;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -80,30 +81,28 @@ public class Tv2Service {
     }
 
     @ManagedOperation
-    @Cacheable(value = "videoUrl", key = "#url")
+    @Cacheable(value = "videoUrl", key = "#url", unless = "#result == null")
     public String getVideoUrl(@NonNull String url) {
         log.info("getVideoUrl, url: {}", url);
-        List<String> actualVideoUrls = new ArrayList<>();
+
+        AtomicReference<String> actualVideoUrl = new AtomicReference<>();
+        actualVideoUrl.set(null);
         getBrowserPage().onRequest(request -> {
             final String videoUrl = request.url();
-            if (videoUrl.contains("chunk") && videoUrl.endsWith(".m3u8")) {
-                actualVideoUrls.add(videoUrl);
+            if (videoUrl.contains("pstream")) {
+                actualVideoUrl.set(videoUrl);
             }
         });
         getBrowserPage().navigate("https://tv2play.hu" + url);
         int counter = 0;
         do {
             getBrowserPage().waitForTimeout(500);
-        } while (actualVideoUrls.size() < 3 && counter++ < 10);
- //       getPage().onRequest(null);
-
-        String res = getActualVideoUrl(actualVideoUrls);
+        } while (actualVideoUrl.get() == null && counter++ < 30);
+        getBrowserPage().navigate("https://tv2play.hu");
+        String res = actualVideoUrl.get() == null ? null : actualVideoUrl.get().split("std")[0] + "std/chunklist_b4160000.m3u8";
+        actualVideoUrl.set(null);
         log.info("getVideoUrl, response: {}", res);
         return res;
-    }
-
-    private String getActualVideoUrl(List<String> urls) {
-        return urls.isEmpty() ? null : urls.get(urls.size() == 1 ? 0 : 1);
     }
 
     @Scheduled(cron = "30 * * * * *")

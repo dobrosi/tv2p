@@ -9,7 +9,8 @@ import {GridComponent} from "../grid/grid.component";
 import {VideoComponent} from "../video/video.component";
 import {HeaderComponent} from "../header/header.component";
 import {log} from "../util";
-import {VideoUrl} from "../interface/videourl";
+import {LoaderComponent} from "../shared/loader/loader.component";
+import {NgIf} from "@angular/common";
 
 @Component({
   selector: 'app-root',
@@ -22,7 +23,9 @@ import {VideoUrl} from "../interface/videourl";
     MatAutocompleteModule,
     ReactiveFormsModule,
     HeaderComponent,
-    GridComponent
+    GridComponent,
+    LoaderComponent,
+    NgIf
   ],
   styleUrls: ['../app.component.css']
 })
@@ -31,6 +34,7 @@ export class MainComponent {
   @ViewChild(HeaderComponent) header!: HeaderComponent
   @ViewChild(VideoComponent) video!: VideoComponent
   siteService: SiteService = inject(SiteService)
+  protected loading: any;
 
   constructor() {
     this.siteService.getSite().then((site: Site) => {
@@ -44,6 +48,7 @@ export class MainComponent {
     this.siteService.search(text).then((site: Site) => {
       this.grid.init(site.siteRows, "/search?text=" + text)
     });
+    this.header.closePanel()
   }
 
   @HostListener('keydown', ['$event'])
@@ -88,8 +93,8 @@ export class MainComponent {
   }
 }
 
-export var videoUrl: Promise<VideoUrl>
+export var videoUrl: string
 
-export function setVideoUrl(url: Promise<VideoUrl>) {
+export function setVideoUrl(url: string) {
   videoUrl = url
 }

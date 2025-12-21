@@ -1,6 +1,6 @@
 import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {SiteRow} from "../interface/siterow";
-import {NgForOf} from "@angular/common";
+import {NgForOf, NgIf} from "@angular/common";
 import {GridLineComponent} from "../gridline/grid-line.component";
 import {SiteService} from "../site.service";
 import {SiteItem} from "../interface/siteitem";
@@ -8,13 +8,16 @@ import {SiteItem} from "../interface/siteitem";
 import {NavigationStart, Router} from "@angular/router";
 import {Subscription} from "rxjs";
 import {setVideoUrl} from "../main/main.component";
+import {LoaderComponent} from "../shared/loader/loader.component";
 
 @Component({
   selector: 'app-grid',
   standalone: true,
   imports: [
     NgForOf,
-    GridLineComponent
+    GridLineComponent,
+    LoaderComponent,
+    NgIf
   ],
   templateUrl: './grid.component.html',
   styleUrl: './grid.component.css'
@@ -28,6 +31,7 @@ export class GridComponent implements OnInit, OnDestroy {
   private focusedElement: HTMLElement | null | undefined
   private button: HTMLButtonElement | null | undefined
   private sub: Subscription | undefined;
+  protected loading: any;
 
   ngOnInit() {
     this.sub = this.router.events.subscribe((event) => {
@@ -83,9 +87,18 @@ export class GridComponent implements OnInit, OnDestroy {
   }
 
   async selectItem(siteItem: SiteItem) {
+    this.loading = true
     this.focusedElement = document.activeElement as HTMLElement
-    setVideoUrl(this.siteService.getUrl(siteItem.url))
-    await this.router.navigate(["/video"])
+    let videoUrl = await this.siteService.getUrl(siteItem.url)
+    let url = videoUrl.value
+    if (url) {
+      setVideoUrl(url)
+      await this.router.navigate(["/video"])
+    } else {
+      await this.router.navigate(["/main"])
+      alert("Not found video.")
+    }
+    this.loading = false
   }
 
   focus() {
