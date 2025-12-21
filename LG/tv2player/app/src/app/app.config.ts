@@ -6,5 +6,8 @@ import {provideAnimationsAsync} from '@angular/platform-browser/animations/async
 import {CustomReuseStrategy} from "./custom-reuse-strategy";
 
 export const appConfig: ApplicationConfig = {
-  providers: [provideRouter(routes), provideAnimationsAsync(), { provide: RouteReuseStrategy, useClass: CustomReuseStrategy }],
+  providers: [
+    provideRouter(routes),
+    provideAnimationsAsync(),
+    { provide: RouteReuseStrategy, useClass: CustomReuseStrategy }],
 };

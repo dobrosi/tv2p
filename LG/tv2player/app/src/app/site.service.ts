@@ -24,4 +24,5 @@ export class SiteService {
   }
 }
 
-export const baseUrl = "https://pgy.no-ip.hu/tv2/api/"
+//export const baseUrl = "https://pgy.no-ip.hu/tv2/api/"
+export const baseUrl = "http://localhost:8085/tv2/api/"

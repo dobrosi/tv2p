@@ -4,7 +4,7 @@ export class CustomReuseStrategy implements RouteReuseStrategy {
   private storedRoutes = new Map<string, DetachedRouteHandle>();
 
   shouldDetach(route: ActivatedRouteSnapshot): boolean {
-    return route.routeConfig!!.path === '';
+    return route.routeConfig!!.path === 'main';
   }
 
   store(route: ActivatedRouteSnapshot, handle: DetachedRouteHandle): void {

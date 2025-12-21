@@ -4,9 +4,10 @@ import {NgForOf} from "@angular/common";
 import {GridLineComponent} from "../gridline/grid-line.component";
 import {SiteService} from "../site.service";
 import {SiteItem} from "../interface/siteitem";
-import {setVideoUrl} from "../app.component";
+
 import {NavigationStart, Router} from "@angular/router";
 import {Subscription} from "rxjs";
+import {setVideoUrl} from "../main/main.component";
 
 @Component({
   selector: 'app-grid',

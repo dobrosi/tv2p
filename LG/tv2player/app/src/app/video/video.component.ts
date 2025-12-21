@@ -2,10 +2,9 @@ import {AfterViewInit, Component, ElementRef, OnDestroy, ViewChild} from '@angul
 import Hls from "hls.js";
 
 import {VideoUrl} from "../interface/videourl";
-import {videoUrl} from "../app.component";
+import {videoUrl} from "../main/main.component";
 
 @Component({
-  selector: 'app-video',
   standalone: true,
   templateUrl: './video.component.html',
   styleUrls: ['./video.component.css']
@@ -29,7 +28,15 @@ export class VideoComponent implements AfterViewInit, OnDestroy {
     this.video.controls = false
 
     if (urlPromise) {
-      const url = (await urlPromise).value as string;
+      const result = await urlPromise;
+
+      console.log(result)
+
+      if (!result?.value) {
+        throw new Error('URL is missing');
+      }
+
+      const url = result.value;
       if (Hls.isSupported()) {
         const hls = new Hls()
         hls.loadSource(url)
@@ -55,6 +62,9 @@ export class VideoComponent implements AfterViewInit, OnDestroy {
   onKeyDown(event: KeyboardEvent): void {
       if (event.key === 'Space') {
         this.playPause()
+      } else if (event.key === 'Escape' || event.key === 'Backspace') {
+        this.video?.pause()
+        this.close()
       }
   }
 }

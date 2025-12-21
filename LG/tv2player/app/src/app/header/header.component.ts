@@ -23,6 +23,8 @@ import {Appstorage} from "../interface/appstorage";
 export class HeaderComponent {
   MAX_SEARCH_SIZE = 10;
 
+  @ViewChild(MatAutocompleteTrigger) autocompleteTrigger: MatAutocompleteTrigger | undefined;
+
   @Output() clicked = new EventEmitter<string>()
 
   @ViewChild('searchText') searchText!: ElementRef<HTMLInputElement>
@@ -56,4 +58,8 @@ export class HeaderComponent {
   }
 
   unselect() {}
+
+  closePanel() {
+    this.autocompleteTrigger?.closePanel()
+  }
 }
