@@ -117,15 +117,12 @@ export class GridComponent implements OnInit, OnDestroy {
       .querySelectorAll('.cell')[this.colIndex] as HTMLButtonElement
   }
 
-  init(siteRows: SiteRow[], key: string | undefined = undefined) {
+  init(siteRows: SiteRow[]) {
     this.siteRows = siteRows
     document.body.scroll(0, 0)
     this.rowIndex = 0
     this.colIndex = 0
     setTimeout(() => this.select())
-    if (key) {
-      history.pushState(siteRows, "", document.location.href)
-    }
   }
 
   unselect() {}

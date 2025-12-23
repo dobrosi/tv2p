@@ -1,8 +1,9 @@
 <div class="video">
   <div class="video-content">
-    <video tabindex="0"
+    <video #videoPlayer
+           tabindex="0"
            (ended)="close()"
            (keydown)="onKeyDown($event)"
-           #videoPlayer width="100%" height="100%" autoplay></video>
+           autoplay></video>
   </div>
 </div>

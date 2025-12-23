@@ -11,7 +11,7 @@ export class SiteService {
     return this.get('load')
   }
 
-  search(value: string) {
+  search(value: string) : Promise<Site> {
     return this.get(`search?text=${value}`)
   }
 
@@ -24,5 +24,5 @@ export class SiteService {
   }
 }
 
-//export const baseUrl = "https://pgy.no-ip.hu/tv2/api/"
-export const baseUrl = "http://localhost:8085/tv2/api/"
+export const baseUrl = document.location.href.includes("localhost") ?
+  "http://localhost:8085/tv2/api/" : "https://pgy.no-ip.hu/tv2/api/"

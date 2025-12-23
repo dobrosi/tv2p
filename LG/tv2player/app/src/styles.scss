@@ -1,0 +1,39 @@
+@use '@angular/material' as mat;
+
+@include mat.core();
+
+// Define a dark theme
+$dark-theme: mat.define-dark-theme(
+    (
+      color: (
+        primary: mat.define-palette(mat.$pink-palette),
+        accent: mat.define-palette(mat.$blue-grey-palette),
+      ),
+      // Only include `typography` and `density` in the default dark theme.
+      typography: mat.define-typography-config(),
+      density: 0,
+    )
+);
+
+// Apply the dark theme by default
+@include mat.all-component-themes($dark-theme);
+
+body {
+  overflow: auto;
+  background: rgb(19, 20, 40);
+  color: white;
+  font-family: 'Quicksand', serif;
+}
+
+form {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+button {
+  font-size: 16px;
+  background-color: rgb(30, 29, 47);
+  padding: 0;
+  color: white;
+  font-weight: 700;
+}

@@ -13,7 +13,6 @@ export class Appstorage {
     if (this.store) {
       return this.store
     }
-    this.store = {history: []};
     const raw = localStorage.getItem('storage');
     if (raw) {
       try {

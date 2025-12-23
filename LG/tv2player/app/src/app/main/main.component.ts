@@ -5,11 +5,12 @@ import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import {MatInputModule} from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
-import {GridComponent} from "../grid/grid.component";
-import {VideoComponent} from "../video/video.component";
+import webOS from '@volley/webostv'
 import {HeaderComponent} from "../header/header.component";
-import {log} from "../util";
+import {GridComponent} from "../grid/grid.component";
 import {LoaderComponent} from "../shared/loader/loader.component";
+import {VideoComponent} from "../video/video.component";
+import {log} from "../util";
 import {NgIf} from "@angular/common";
 
 @Component({
@@ -25,30 +26,52 @@ import {NgIf} from "@angular/common";
     HeaderComponent,
     GridComponent,
     LoaderComponent,
-    NgIf
+    NgIf,
   ],
-  styleUrls: ['../app.component.css']
+  styleUrls: ['main.component.css']
 })
 export class MainComponent {
   @ViewChild(GridComponent) grid!: GridComponent
   @ViewChild(HeaderComponent) header!: HeaderComponent
   @ViewChild(VideoComponent) video!: VideoComponent
-  siteService: SiteService = inject(SiteService)
-  protected loading: any;
+
+  private siteService: SiteService = inject(SiteService)
+  private searchText: any
+  protected loading: any
 
   constructor() {
-    this.siteService.getSite().then((site: Site) => {
-      this.grid.init(site.siteRows, "/")
-      this.grid.unselect = () => this.header.focus()
-      this.header.unselect = () => this.grid.select()
+    this.search()
+  }
+
+  search(text: string | undefined = undefined) {
+    this.loading = true
+    this.searchText = text
+    const load$ = text
+      ? this.siteService.search(text)
+      : this.siteService.getSite()
+    load$.then((site: Site) => {
+      this.grid.init(site.siteRows);
+      this.grid.unselect = () => this.header.focus();
+      this.header.unselect = () => this.grid.select();
+      this.loading = false
     })
   }
 
-  search(text: string) {
-    this.siteService.search(text).then((site: Site) => {
-      this.grid.init(site.siteRows, "/search?text=" + text)
-    });
-    this.header.closePanel()
+  back() {
+    if (this.searchText) {
+      this.header.searchText.nativeElement.value = ''
+      this.search()
+    } else {
+      webOS.service.request(
+        "luna://com.webos.applicationManager",
+        {
+          method: "launch",
+          parameters: {
+            id: "com.webos.app.home"
+          }
+        }
+      )
+    }
   }
 
   @HostListener('keydown', ['$event'])
@@ -69,7 +92,7 @@ export class MainComponent {
       } else if (event.key === 'Enter') {
         this.doIt(event, () => this.grid.clickToItem())
       } else if (event.key === 'Backspace') {
-        this.doIt(event, () => history.back())
+        this.doIt(event, () => this.back())
       }
     } else
     if (tagName === "INPUT") {
@@ -85,6 +108,7 @@ export class MainComponent {
   onPopState(event: PopStateEvent) {
     console.log('URL változott:', location.pathname);
     console.log("state: " + JSON.stringify(event.state))
+   // this.search(event.state.text, false)
   }
 
   private doIt(event: KeyboardEvent, f: () => void) {

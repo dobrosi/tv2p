@@ -8,10 +8,11 @@
 .example-full-width {
   padding-left: 30px;
   width: 200px;
-  font-size: 23px;
+  font-size: 25px;
 }
 
 button.search {
-  width: 58px;
-  height: 58px;
+  width: 64px;
+  height: 64px;
+  border-radius: 0 16px 16px 0;
 }

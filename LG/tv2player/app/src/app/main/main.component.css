@@ -2,7 +2,8 @@
   position: fixed;
   width: 600px;
   padding: 3px;
-  height: 25px;
+  height: 30px;
   left: 500px;
-  background: gray;
+  text-align: center;
+  background: #333333;
 }

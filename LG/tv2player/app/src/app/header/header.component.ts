@@ -51,6 +51,7 @@ export class HeaderComponent {
     this.options = options
     Appstorage.get().history = options
     Appstorage.save()
+    this.closePanel()
   }
 
   focus() {
