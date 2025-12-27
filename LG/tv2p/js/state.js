@@ -1,6 +1,4 @@
 const State = {
-  pages: [],
-  url: undefined,
   currentView: undefined,
   focused: undefined,
   x: undefined,

@@ -1,9 +1,8 @@
-var Api = {
-  loadItems: function (u) {
+const Api = {
+  loadItems: function (u, f) {
     State.init()
     get(u, r => {
-      State.grid = r
-      HomeView.render()
+      f(r)
     })
   }
-};
+}

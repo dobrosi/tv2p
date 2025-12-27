@@ -1,6 +1,8 @@
 const url = "https://pgy.no-ip.hu/tv2/api/"
 //const url = "http://localhost:8085/tv2/api/"
+const hls = new Hls()
 const video = getElement('video')
+hls.attachMedia(video)
 const searchInput = getElement('#search-input')
 const loggerDiv = getElement('#logger')
 
@@ -10,19 +12,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
 const App = {
   init: function () {
-    Navigation.init();
-    load('load');
+    Navigation.init()
+    load()
   }
-};
-
-video.addEventListener('fullscreenchange', () => {
-    if (!document.fullscreenElement) {
-        console.log('Kiléptünk fullscreenből');
-        stopVideo()
-    } else {
-        console.log('Fullscreen aktív');
-    }
-});
+}
 
 function get(u, f) {
   const xhr = new XMLHttpRequest();
@@ -59,27 +52,26 @@ function playVideo(url) {
     show('#loading')
     get('getVideoUrl?url=' + url, r => {
         if (r && r.value) {
-            show('#video')
-            video.requestFullscreen().then(() => {})
-            video.focus()
-            video.controls = false
+            history.pushState({}, undefined, '')
             if (Hls.isSupported()) {
-                const hls = new Hls()
+                show('#video')
                 hls.loadSource(r.value)
-                hls.attachMedia(video)
                 hls.startLoad()
-                hls.createController({}, {})
+                video.focus()
             } else {
                 video.src = r.value
             }
         } else {
-            stopVideo()
+            show('#home')
         }
     })
 }
 
 function stopVideo() {
-    video.pause()
+    video.pause();
+    video.currentTime = 0;
+    video.removeAttribute('src');
+    video.load();
     show('#home')
 }
 
@@ -113,13 +105,16 @@ function scrollIntoView(e, pos) {
 
 function load(u, skipHistory) {
     show('#loading')
+    u = u ? u : 'load'
     console.log('load', u)
-    if (!skipHistory) {
-        State.pages.push(State.url)
-    }
     State.init();
-    State.url = u
-    Api.loadItems(u)
+    Api.loadItems(u, r => {
+        State.grid = r
+        HomeView.render()
+        if (!skipHistory) {
+            history.pushState({url: u}, '', '')
+        }
+    })
 }
 
 function searchText() {

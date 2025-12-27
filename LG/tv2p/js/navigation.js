@@ -1,10 +1,23 @@
 const Navigation = {
   init: function () {
-    document.addEventListener('keydown', this.handleKey.bind(this));
+    document.addEventListener('keydown', this.handleKey.bind(this))
+    window.addEventListener('popstate', (event) => {
+      console.log('History változott')
+      console.log('State:', event.state)
+      if (State.currentView === '#video') {
+        stopVideo()
+      } else {
+        if (event.state) {
+          load(event.state.url, true)
+        } else {
+          history.back()
+        }
+      }
+    })
   },
 
   handleKey: function (e) {
-    console.log('keyCode:' + e.keyCode + " key:" + e.key)
+    console.log('keyCode:' + e.keyCode + " key:" + e.key + ' view:' + State.currentView)
     switch(State.currentView) {
       case '#home':
         this.handleKeyHome(e);
@@ -37,7 +50,7 @@ const Navigation = {
     if (document.activeElement === searchInput) {
       this.handleSearch(e);
     } else {
-      e.preventDefault()
+      //e.preventDefault()
       switch (e.key) {
         case 'Backspace':
           this.goBack(); break;
@@ -49,18 +62,18 @@ const Navigation = {
           this.up(); break;
         case 'ArrowDown':
           this.down(); break;
-        case 'Space':
+        case ' ':
         case 'Enter': this.enter(); break;
       }
     }
   },
 
   handleKeyVideo: function(e) {
+    //e.preventDefault()
     switch (e.key) {
+      case 'Escape':
       case 'Backspace':
-        e.preventDefault()
-        stopVideo()
-        document.exitFullscreen()
+        this.goBack()
         break;
     }
   },
@@ -110,27 +123,7 @@ const Navigation = {
   },
 
   goBack: function () {
-    const pages = State.pages
-    if (pages.length > 1) {
-      load(pages.pop(), true)
-    } else {
-      console.log('exit')
-      webOS.service.request(
-          "luna://com.webos.applicationManager",
-          {
-            method: "close",
-            parameters: {
-              id: "com.github.dobrosi.tv2p" // a te app ID-d
-            },
-            onSuccess: function(response) {
-              console.log("Alkalmazás bezárva:", response);
-            },
-            onFailure: function(err) {
-              console.log("Nem sikerült bezárni:", err);
-            }
-          }
-      );
-    }
     searchInput.value = ''
+    history.back()
   }
 };
