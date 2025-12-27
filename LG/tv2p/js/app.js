@@ -1,8 +1,8 @@
 const url = "https://pgy.no-ip.hu/tv2/api/"
 //const url = "http://localhost:8085/tv2/api/"
 const hls = new Hls()
-const video = getElement('video')
-hls.attachMedia(video)
+const player = getElement('#player')
+hls.attachMedia(player)
 const searchInput = getElement('#search-input')
 const loggerDiv = getElement('#logger')
 
@@ -57,9 +57,9 @@ function playVideo(url) {
                 show('#video')
                 hls.loadSource(r.value)
                 hls.startLoad()
-                video.focus()
+                player.focus()
             } else {
-                video.src = r.value
+                player.src = r.value
             }
         } else {
             show('#home')
@@ -68,10 +68,10 @@ function playVideo(url) {
 }
 
 function stopVideo() {
-    video.pause();
-    video.currentTime = 0;
-    video.removeAttribute('src');
-    video.load();
+    player.pause();
+    player.currentTime = 0;
+    player.removeAttribute('src');
+    player.load();
     show('#home')
 }
 
@@ -89,9 +89,11 @@ function show(s) {
 }
 
 function hide(s) {
-    const e = getElement(s)
-    if (e) {
-        e.classList.add('hidden')
+    if (s !== '#home') {
+        const e = getElement(s)
+        if (e) {
+            e.classList.add('hidden')
+        }
     }
 }
 

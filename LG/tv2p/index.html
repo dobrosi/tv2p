@@ -7,17 +7,20 @@
   <link href="https://vjs.zencdn.net/8.23.4/video-js.css" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="hide-scrollbar">
-  <div id="loading">
+<body>
+  <div id="loading" class="panel">
     <div class="loading-spinner"></div>
   </div>
-  <video
-    id="video"
-    class="video-js hidden"
-    controls
-    autoplay>
-  </video>
-  <div id="home" class="hidden">
+  <div id="video" class="panel hidden">
+    <video
+            id="player"
+            class="video-js"
+            controls
+            autoplay>
+    </video>
+  </div>
+
+  <div id="home" class="panel hide-scrollbar">
     <div class="input-group m-3" style="width: 20%;">
       <input id="search-input" type="text" class="form-control" placeholder="Keresés" aria-label="Recipient’s username" aria-describedby="button-addon2">
       <button class="btn btn-outline-secondary" type="button" id="button-addon2" onclick="searchText()">Keresés</button>
@@ -25,6 +28,7 @@
     <div id="logger"></div>
     <div id="home-content"></div>
   </div>
+
   <script src="js/webOSTVjs-1.2.10/webOSTV.js" charset="utf-8"></script>
   <script src="js/webOSTVjs-1.2.10/webOSTV-dev.js" charset="utf-8"></script>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>

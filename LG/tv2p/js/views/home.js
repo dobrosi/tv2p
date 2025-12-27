@@ -8,7 +8,7 @@ const HomeView = {
       html += '<div class="row hide-scrollbar" data-y="' + y + '">'
       row.siteItems.forEach((item ,x) => {
         if (item.imageUrl) {
-          html += '<div tabindex="0" onclick=playVideo("' + item.url+ '") class="p-3 m-3 col" data-x="' + x + '"><img class="pic" src="' + item.imageUrl + '" alt="' + item.title + '">' + item.title + '</div>'
+          html += '<div onclick=playVideo("' + item.url+ '") class="p-3 m-3 col" data-x="' + x + '"><img class="pic" src="' + item.imageUrl + '" alt="' + item.title + '">' + item.title + '</div>'
         } else {
           html += '<div onclick=load("load?url=' + item.url+ '") class="p-3 m-3 col" data-x="' + x + '">' + item.title + '</div>'
         }

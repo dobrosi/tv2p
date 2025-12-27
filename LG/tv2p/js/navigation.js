@@ -19,12 +19,15 @@ const Navigation = {
   handleKey: function (e) {
     console.log('keyCode:' + e.keyCode + " key:" + e.key + ' view:' + State.currentView)
     switch(State.currentView) {
+      case '#loading':
+        e.preventDefault()
+        break;
       case '#home':
-        this.handleKeyHome(e);
-        break;
+        this.handleKeyHome(e)
+        break
       case '#video':
-        this.handleKeyVideo(e);
-        break;
+        this.handleKeyVideo(e)
+        break
     }
   },
 

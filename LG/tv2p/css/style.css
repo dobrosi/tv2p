@@ -1,3 +1,42 @@
+#home {
+  z-index: 100;
+
+  width: 100vw;
+  height: 100vh;
+
+  max-width: 100vw;
+  max-height: 100vh;
+}
+
+#logger {
+  width: 400px;
+  background: white;
+}
+
+#video {
+  z-index: 500;
+}
+
+#loading {
+  z-index: 999;
+}
+
+.panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: #00000088;
+  width: 100vw;
+  height: 100vh;
+  max-width: 100vw;
+  max-height: 100vh;
+  overflow: auto;
+}
+
+#player {
+  width: 100%;
+  height: 100%;
+}
 
 .hide-scrollbar::-webkit-scrollbar {
   display: none;             /* Chrome, Safari, webOS */
@@ -36,21 +75,6 @@ body {
   width: 100%;
 }
 
-#logger {
-  width: 400px;
-  background: white;
-}
-
-#loading {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 999;
-  background: #00000088;
-  width: 100%;
-  height: 100%;
-}
-
 .loading-spinner {
   width: 60px;
   height: 60px;
@@ -74,9 +98,4 @@ body {
 
 .hidden {
   display: none;
-}
-
-video {
-  width: 100%;
-  height: 100%;
 }
