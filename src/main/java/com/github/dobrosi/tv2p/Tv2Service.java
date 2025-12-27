@@ -97,7 +97,7 @@ public class Tv2Service {
         int counter = 0;
         do {
             getBrowserPage().waitForTimeout(500);
-        } while (actualVideoUrl.get() == null && counter++ < 30);
+        } while (actualVideoUrl.get() == null && counter++ < 10);
         getBrowserPage().navigate("https://tv2play.hu");
         String res = actualVideoUrl.get() == null ? null : actualVideoUrl.get().split("std")[0] + "std/chunklist_b4160000.m3u8";
         actualVideoUrl.set(null);

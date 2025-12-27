@@ -1,15 +1,44 @@
-var Navigation = {
+const Navigation = {
   init: function () {
     document.addEventListener('keydown', this.handleKey.bind(this));
   },
 
   handleKey: function (e) {
-    switch (e.keyCode) {
-      case 37: this.left(); break;
-      case 38: this.up(); break;
-      case 39: this.right(); break;
-      case 40: this.down(); break;
-      case 13: this.enter(); break;
+    log('key: ' + e.keyCode + " " + e.key)
+    e.preventDefault()
+    switch(State.currentView) {
+      case '#home':
+        this.handleKeyHome(e);
+        break;
+      case '#video':
+        this.handleKeyVideo(e);
+        break;
+    }
+  },
+
+  handleKeyHome: function(e) {
+    switch (e.key) {
+      case 'Backspace':
+        this.goBack(); break;
+      case 'ArrowLeft':
+        this.left(); break;
+      case 'ArrowRight':
+        this.right(); break;
+      case 'ArrowUp':
+        this.up(); break;
+      case 'ArrowDown':
+        this.down(); break;
+      case 'Space':
+      case 'Enter': this.enter(); break;
+    }
+  },
+
+  handleKeyVideo: function(e) {
+    switch (e.key) {
+      case 'Backspace':
+        stopVideo()
+        document.exitFullscreen()
+        break;
       default: log(e.keyCode)
     }
   },
@@ -33,9 +62,9 @@ var Navigation = {
   },
 
   navigate: function (dx, dy) {
-    var x = State.x + dx
-    var y = State.y + dy
-    var cell = getCell(x, y)
+    const x = State.x + dx
+    const y = State.y + dy
+    const cell = getCell(x, y)
     if (cell) {
       State.x = x
       State.y = y
@@ -45,5 +74,14 @@ var Navigation = {
 
   enter: function () {
     clickToButton()
+  },
+
+  goBack: function () {
+    const pages = State.pages
+    if (pages.length > 1) {
+      load(pages.pop(), true)
+    } else {
+      log('exit')
+    }
   }
 };

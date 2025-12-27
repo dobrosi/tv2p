@@ -1,9 +1,10 @@
 var Api = {
   loadItems: function (u) {
-    var q = u ? '?url=' + u : ''
+    State.init()
+    let q = u ? '?url=' + u : ''
     get('load' + q, r => {
       State.grid = r
-      HomeView.render();
+      HomeView.render()
     })
   }
 };

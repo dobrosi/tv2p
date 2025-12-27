@@ -1,11 +1,17 @@
-var State = {
-  currentView: 'home',
-  x: 0,
-  y: 0,
-  grid: {},
+const State = {
+  pages: [],
+  url: undefined,
+  currentView: undefined,
+  focused: undefined,
+  x: undefined,
+  y: undefined,
+  grid: undefined,
 
   init: function () {
+    this.currentView = '#loading'
+    this.focused = undefined
     this.x = 0
     this.y = 0
+    this.grid = {}
   }
 };

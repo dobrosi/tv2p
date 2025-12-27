@@ -2,15 +2,24 @@ document.addEventListener('DOMContentLoaded', function () {
   App.init();
 });
 
-var App = {
+const App = {
   init: function () {
     State.init();
     Navigation.init();
-    Api.loadItems();
+    load();
   }
 };
 
 const url = "https://pgy.no-ip.hu/tv2/api/"
+const video = getElement('video')
+video.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement) {
+        console.log('Kiléptünk fullscreenből');
+        stopVideo()
+    } else {
+        console.log('Fullscreen aktív');
+    }
+});
 
 function get(u, f) {
   const xhr = new XMLHttpRequest();
@@ -23,6 +32,7 @@ function get(u, f) {
         f(res)
       } else {
           console.error(xhr)
+          show('#home')
       }
     }
   }
@@ -46,37 +56,61 @@ function log(m) {
 }
 
 function playVideo(url) {
-  get('getVideoUrl?url=' + url, r => {
-      show('#player')
-      var video = getElement('video')
-      video.requestFullscreen().then(() => {})
-      video.focus()
-      video.controls = false
-      if (Hls.isSupported()) {
-        const hls = new Hls()
-        hls.loadSource(r.value)
-        hls.attachMedia(video)
-        hls.startLoad()
-        hls.createController({}, {})
-      } else {
-        video.src = r.value
-      }
-  })
-}
-
-function load(u) {
-  log(u)
-  Api.loadItems(u)
+    log(url)
+    show('#loading')
+    get('getVideoUrl?url=' + url, r => {
+        if (r && r.value) {
+            show('#video')
+            video.requestFullscreen().then(() => {})
+            video.focus()
+            video.controls = false
+            if (Hls.isSupported()) {
+                const hls = new Hls()
+                hls.loadSource(r.value)
+                hls.attachMedia(video)
+                hls.startLoad()
+                hls.createController({}, {})
+            } else {
+                video.src = r.value
+            }
+        } else {
+            stopVideo()
+        }
+    })
 }
 
 function stopVideo() {
-  hide('#player')
+    video.pause()
+    show('#home')
+}
+
+function load(u, skipHistory) {
+    show('#loading')
+    log(u)
+    if (!skipHistory) {
+        State.pages.push(State.url)
+    }
+    State.url = u
+    Api.loadItems(u)
+}
+
+function clickToButton() {
+    State.focused.click()
 }
 
 function show(s) {
-  getElement(s).classList.remove('hidden')
+    hide(State.currentView)
+    State.currentView = s
+    const e = getElement(s)
+    if (e) {
+        e.classList.remove('hidden')
+    }
 }
 
 function hide(s) {
-  getElement(s).classList.add('hidden')
+    const e = getElement(s)
+    if (e) {
+        e.classList.add('hidden')
+    }
 }
+

@@ -8,11 +8,11 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="hide-scrollbar">
-  <div id="content"></div>
-  <div id="player" class="hidden">
-  	<video id="video" autoplay controls></video>
+  <div id="loading">
+    <div class="loading-spinner"></div>
   </div>
-
+  <video id="video" class="hidden" autoplay controls></video>
+  <div id="home" class="hidden"></div>
   <script src="js/state.js"></script>
   <script src="js/navigation.js"></script>
   <script src="js/views/home.js"></script>
