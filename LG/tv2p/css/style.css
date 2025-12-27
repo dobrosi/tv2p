@@ -1,0 +1,56 @@
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;             /* Chrome, Safari, webOS */
+}
+
+.col {
+  flex: unset;
+  width: 300px;
+  height: 250px;
+  border: 2px solid transparent;
+  color: white;
+  background: #333;
+}
+
+.col.focused {
+  border-color: yellow;
+}
+
+.row {
+  flex-wrap: unset;
+  display: -webkit-box;
+  overflow: auto;
+  width: 100%;
+}
+
+.title {
+  color: white;
+}
+
+body {
+  background: black;
+  font-family: Arial, sans-serif;
+}
+
+.pic {
+  width: 100%;
+}
+
+#loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 999;
+  background: #000000;
+  width: 100%;
+  height: 100%;
+}
+
+.hidden {
+  display: none;
+}
+
+video {
+  width: 100%;
+  height: 100%;
+}
