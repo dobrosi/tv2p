@@ -29,6 +29,7 @@ const HomeView = {
   },
 
   updateFocus: function () {
+    searchInput.blur()
     this.removeFocus()
     const focused = State.focused = getCell(State.x, State.y)
     if (focused) {
@@ -41,6 +42,5 @@ const HomeView = {
     for (let i = 0; i < items.length; i++) {
       items[i].classList.remove('focused');
     }
-    searchInput.blur()
   }
 };

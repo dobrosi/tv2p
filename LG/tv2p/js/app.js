@@ -9,10 +9,9 @@ const loggerInput = getElement('#logger')
 document.addEventListener('DOMContentLoaded', function () {
   App.init();
 });
-searchInput.addEventListener('focus', function (e) {
+searchInput.addEventListener('focus', function () {
     HomeView.removeFocus()
     State.initFocus()
-    e.target.focus()
 });
 
 const App = {

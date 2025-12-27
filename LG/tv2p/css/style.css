@@ -58,7 +58,7 @@
   background: #333;
 }
 
-.col.focused {
+.col.focused, input:focus-visible, input:focus {
   border-color: yellow;
 }
 

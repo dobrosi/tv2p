@@ -104,7 +104,6 @@ const Navigation = {
     const y = State.y + dy
     this.navigateTo(x, y)
     if (y < 0) {
-      HomeView.removeFocus()
       searchInput.focus()
       scrollIntoView(searchInput, 'center')
     }
