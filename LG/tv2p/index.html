@@ -12,7 +12,16 @@
     <div class="loading-spinner"></div>
   </div>
   <video id="video" class="hidden" autoplay controls></video>
-  <div id="home" class="hidden"></div>
+  <div id="home" class="hidden">
+    <div class="input-group m-3" style="width: 20%;">
+      <input id="search-input" type="text" class="form-control" placeholder="Keresés" aria-label="Recipient’s username" aria-describedby="button-addon2">
+      <button class="btn btn-outline-secondary" type="button" id="button-addon2" onclick="searchText()">Keresés</button>
+    </div>
+    <div id="logger"></div>
+    <div id="home-content"></div>
+  </div>
+  <script src="js/webOSTVjs-1.2.10/webOSTV.js" charset="utf-8"></script>
+  <script src="js/webOSTVjs-1.2.10/webOSTV-dev.js" charset="utf-8"></script>
   <script src="js/state.js"></script>
   <script src="js/navigation.js"></script>
   <script src="js/views/home.js"></script>

@@ -1,17 +1,20 @@
+const url = "https://pgy.no-ip.hu/tv2/api/"
+//const url = "http://localhost:8085/tv2/api/"
+const video = getElement('video')
+const searchInput = getElement('#search-input')
+const loggerDiv = getElement('#logger')
+
 document.addEventListener('DOMContentLoaded', function () {
   App.init();
 });
 
 const App = {
   init: function () {
-    State.init();
     Navigation.init();
-    load();
+    load('load');
   }
 };
 
-const url = "https://pgy.no-ip.hu/tv2/api/"
-const video = getElement('video')
 video.addEventListener('fullscreenchange', () => {
     if (!document.fullscreenElement) {
         console.log('Kiléptünk fullscreenből');
@@ -27,9 +30,9 @@ function get(u, f) {
   xhr.onreadystatechange = function() {
     if (xhr.readyState === 4) {
       if(xhr.status === 200) {
-        var res = JSON.parse(xhr.responseText)
-        log(res)
-        f(res)
+          const res = JSON.parse(xhr.responseText)
+          console.log('http response', res)
+          f(res)
       } else {
           console.error(xhr)
           show('#home')
@@ -44,19 +47,15 @@ function getElement(s) {
 }
 
 function getElements(s) {
-  return document.querySelectorAll(s)
+    return document.querySelectorAll(s)
 }
 
 function getCell(x, y) {
-  return getElement('.row[data-y="' + y + '"] > .col[data-x="' + x + '"]')
-}
-
-function log(m) {
-  console.log(m)  
+    return getElement('.row[data-y="' + y + '"] > .col[data-x="' + x + '"]')
 }
 
 function playVideo(url) {
-    log(url)
+    console.log('play video', url)
     show('#loading')
     get('getVideoUrl?url=' + url, r => {
         if (r && r.value) {
@@ -84,16 +83,6 @@ function stopVideo() {
     show('#home')
 }
 
-function load(u, skipHistory) {
-    show('#loading')
-    log(u)
-    if (!skipHistory) {
-        State.pages.push(State.url)
-    }
-    State.url = u
-    Api.loadItems(u)
-}
-
 function clickToButton() {
     State.focused.click()
 }
@@ -112,5 +101,28 @@ function hide(s) {
     if (e) {
         e.classList.add('hidden')
     }
+}
+
+function scrollIntoView(e, pos) {
+    e.scrollIntoView({
+        behavior: 'instant',
+        block: 'center',
+        inline: pos
+    })
+}
+
+function load(u, skipHistory) {
+    show('#loading')
+    console.log('load', u)
+    if (!skipHistory) {
+        State.pages.push(State.url)
+    }
+    State.init();
+    State.url = u
+    Api.loadItems(u)
+}
+
+function searchText() {
+    load('search?text=' + searchInput.value)
 }
 

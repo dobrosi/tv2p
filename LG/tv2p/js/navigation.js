@@ -4,8 +4,7 @@ const Navigation = {
   },
 
   handleKey: function (e) {
-    log('key: ' + e.keyCode + " " + e.key)
-    e.preventDefault()
+    console.log('keyCode:' + e.keyCode + " key:" + e.key)
     switch(State.currentView) {
       case '#home':
         this.handleKeyHome(e);
@@ -16,30 +15,53 @@ const Navigation = {
     }
   },
 
-  handleKeyHome: function(e) {
+  handleSearch (e) {
     switch (e.key) {
-      case 'Backspace':
-        this.goBack(); break;
-      case 'ArrowLeft':
-        this.left(); break;
-      case 'ArrowRight':
-        this.right(); break;
-      case 'ArrowUp':
-        this.up(); break;
+      case 'Escape':
       case 'ArrowDown':
-        this.down(); break;
-      case 'Space':
-      case 'Enter': this.enter(); break;
+        this.removeFocusFromSearchInput(e)
+        break;
+      case 'ArrowLeft':
+      case 'ArrowRight':
+      case 'Backspace':
+        if (searchInput.value === '') {
+          this.removeFocusFromSearchInput(e)
+        }
+        break;
+      case 'Enter':
+        searchText()
+    }
+  },
+
+  handleKeyHome: function(e) {
+    if (document.activeElement === searchInput) {
+      this.handleSearch(e);
+    } else {
+      e.preventDefault()
+      switch (e.key) {
+        case 'Backspace':
+          this.goBack(); break;
+        case 'ArrowLeft':
+          this.left(); break;
+        case 'ArrowRight':
+          this.right(); break;
+        case 'ArrowUp':
+          this.up(); break;
+        case 'ArrowDown':
+          this.down(); break;
+        case 'Space':
+        case 'Enter': this.enter(); break;
+      }
     }
   },
 
   handleKeyVideo: function(e) {
     switch (e.key) {
       case 'Backspace':
+        e.preventDefault()
         stopVideo()
         document.exitFullscreen()
         break;
-      default: log(e.keyCode)
     }
   },
 
@@ -70,10 +92,21 @@ const Navigation = {
       State.y = y
       HomeView.updateFocus()
     }
+    if (y < 0) {
+      HomeView.removeFocus()
+      searchInput.focus()
+      scrollIntoView(searchInput, 'center')
+    }
   },
 
   enter: function () {
     clickToButton()
+  },
+
+  removeFocusFromSearchInput(e) {
+    HomeView.updateFocus()
+    searchInput.blur()
+    e.preventDefault()
   },
 
   goBack: function () {
@@ -81,7 +114,23 @@ const Navigation = {
     if (pages.length > 1) {
       load(pages.pop(), true)
     } else {
-      log('exit')
+      console.log('exit')
+      webOS.service.request(
+          "luna://com.webos.applicationManager",
+          {
+            method: "close",
+            parameters: {
+              id: "com.github.dobrosi.tv2p" // a te app ID-d
+            },
+            onSuccess: function(response) {
+              console.log("Alkalmazás bezárva:", response);
+            },
+            onFailure: function(err) {
+              console.log("Nem sikerült bezárni:", err);
+            }
+          }
+      );
     }
+    searchInput.value = ''
   }
 };

@@ -36,6 +36,11 @@ body {
   width: 100%;
 }
 
+#logger {
+  width: 400px;
+  background: white;
+}
+
 #loading {
   position: absolute;
   top: 0;

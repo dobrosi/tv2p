@@ -10,32 +10,31 @@ const HomeView = {
         if (item.imageUrl) {
           html += '<div tabindex="0" onclick=playVideo("' + item.url+ '") class="p-3 m-3 col" data-x="' + x + '"><img class="pic" src="' + item.imageUrl + '" alt="' + item.title + '">' + item.title + '</div>'
         } else {
-          html += '<div onclick=load("' + item.url+ '") class="p-3 m-3 col" data-x="' + x + '">' + item.title + '</div>'
+          html += '<div onclick=load("load?url=' + item.url+ '") class="p-3 m-3 col" data-x="' + x + '">' + item.title + '</div>'
         }
       })
       html += '</div>';
     });
     html += '</div>'
-    getElement('#home').innerHTML = html;
+    getElement('#home-content').innerHTML = html;
     this.updateFocus()
     show('#home')
   },
 
   updateFocus: function () {
+    this.removeFocus()
+
+    const focused = State.focused = getCell(State.x, State.y)
+    console.log("focused", focused)
+    if (focused) {
+      focused.classList.add('focused')
+      scrollIntoView(focused, 'nearest')
+    }
+  },
+  removeFocus() {
     const items = getElements('.col');
     for (let i = 0; i < items.length; i++) {
       items[i].classList.remove('focused');
-    }
-
-    const focused = State.focused = getCell(State.x, State.y)
-    log(focused)
-    if (focused) {
-      focused.classList.add('focused')
-      focused.scrollIntoView({
-        behavior: 'instant',
-        block: 'nearest',
-        inline: 'nearest'
-      })
     }
   }
 };
