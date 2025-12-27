@@ -75,6 +75,10 @@ body {
   width: 100%;
 }
 
+.pic2 {
+  height: 100%;
+}
+
 .loading-spinner {
   width: 60px;
   height: 60px;
