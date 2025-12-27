@@ -4,10 +4,15 @@ const hls = new Hls()
 const player = getElement('#player')
 hls.attachMedia(player)
 const searchInput = getElement('#search-input')
-const loggerDiv = getElement('#logger')
+const loggerInput = getElement('#logger')
 
 document.addEventListener('DOMContentLoaded', function () {
   App.init();
+});
+searchInput.addEventListener('focus', function (e) {
+    HomeView.removeFocus()
+    State.initFocus()
+    e.target.focus()
 });
 
 const App = {
@@ -35,6 +40,15 @@ function get(u, f) {
   xhr.send();
 }
 
+const originalLog = console.log;
+
+// Új console.log
+console.log = function(...args) {
+    const timestamp = new Date().toISOString();
+    originalLog.apply(console, [`[${timestamp}]`, ...args]);
+    loggerInput.value = args[0]
+}
+
 function getElement(s) {
   return document.querySelector(s)
 }
@@ -47,8 +61,9 @@ function getCell(x, y) {
     return getElement('.row[data-y="' + y + '"] > .col[data-x="' + x + '"]')
 }
 
-function playVideo(url) {
+function playVideo(x, y, url) {
     console.log('play video', url)
+    Navigation.navigateTo(x, y)
     show('#loading')
     get('getVideoUrl?url=' + url, r => {
         if (r && r.value) {
@@ -120,6 +135,9 @@ function load(u, skipHistory) {
 }
 
 function searchText() {
-    load('search?text=' + searchInput.value)
+    const v = searchInput.value
+    if (v && v.length > 0) {
+        load('search?text=' + searchInput.value)
+    }
 }
 

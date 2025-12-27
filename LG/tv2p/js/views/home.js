@@ -9,27 +9,28 @@ const HomeView = {
       row.siteItems.forEach((item ,x) => {
         if (item.imageUrl) {
           if (item.title === '') { // Hasonlo musorok
-            html += '<div onclick=load("load?url=' + item.url + '") class="p-3 m-3 col" data-x="' + x + '"><img class="pic2" src="' + item.imageUrl + '" alt="' + item.title + '">' + item.title + '</div>'
+            html += '<div onclick=load("load?url=' + item.url + '") class="p-3 m-3 col" data-x="' + x + '">'
+                + '<img class="pic2" src="' + item.imageUrl + '" alt="' + item.title + '">' + item.title + '</div>'
           } else { // Video link
-            html += '<div onclick=playVideo("' + item.url + '") class="p-3 m-3 col" data-x="' + x + '"><img class="pic" src="' + item.imageUrl + '" alt="' + item.title + '">' + item.title + '</div>'
+            html += '<div onclick="playVideo(' +x + ',' + y + ', \'' + item.url + '\')" class="p-3 m-3 col" data-x="' + x + '"><img class="pic" src="' + item.imageUrl + '" alt="' + item.title + '">' + item.title + '</div>'
           }
         } else { // Mutasd mindet!
-          html += '<div onclick=load("load?url=' + item.url+ '") class="p-3 m-3 col" data-x="' + x + '">' + item.title + '</div>'
+          html += '<div onclick=load("load?url=' + item.url+ '") class="p-3 m-3 col d-flex justify-content-center align-items-center" data-x="' + x + '">'
+              + item.title
+              + '</div>'
         }
       })
       html += '</div>';
     });
     html += '</div>'
     getElement('#home-content').innerHTML = html;
-    this.updateFocus()
     show('#home')
+    this.updateFocus()
   },
 
   updateFocus: function () {
     this.removeFocus()
-
     const focused = State.focused = getCell(State.x, State.y)
-    console.log("focused", focused)
     if (focused) {
       focused.classList.add('focused')
       scrollIntoView(focused, 'nearest')
@@ -40,5 +41,6 @@ const HomeView = {
     for (let i = 0; i < items.length; i++) {
       items[i].classList.remove('focused');
     }
+    searchInput.blur()
   }
 };

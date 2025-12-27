@@ -102,16 +102,20 @@ const Navigation = {
   navigate: function (dx, dy) {
     const x = State.x + dx
     const y = State.y + dy
+    this.navigateTo(x, y)
+    if (y < 0) {
+      HomeView.removeFocus()
+      searchInput.focus()
+      scrollIntoView(searchInput, 'center')
+    }
+  },
+
+  navigateTo(x, y) {
     const cell = getCell(x, y)
     if (cell) {
       State.x = x
       State.y = y
       HomeView.updateFocus()
-    }
-    if (y < 0) {
-      HomeView.removeFocus()
-      searchInput.focus()
-      scrollIntoView(searchInput, 'center')
     }
   },
 
