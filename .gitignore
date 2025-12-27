@@ -38,3 +38,5 @@ build/
 /LG/tv2player/app/.angular/
 /LG/tv2player/app/pnpm-lock.yaml
 /tv2p.pid
+
+*.ipk
