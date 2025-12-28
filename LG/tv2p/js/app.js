@@ -2,9 +2,9 @@ const url = "https://pgy.no-ip.hu/tv2/api/"
 //const url = "http://localhost:8085/tv2/api/"
 const hls = new Hls()
 const player = getElement('#player')
-hls.attachMedia(player)
 const searchInput = getElement('#search-input')
 const loggerInput = getElement('#logger')
+const playbackRates = [0.1, 0.2, 0.5, 1, 2, 4, 8]
 
 document.addEventListener('DOMContentLoaded', function () {
   App.init();
@@ -15,10 +15,11 @@ searchInput.addEventListener('focus', function () {
 });
 
 const App = {
-  init: function () {
-    Navigation.init()
-    load()
-  }
+    init: function () {
+        hls.attachMedia(player)
+        Navigation.init()
+        load()
+    }
 }
 
 function get(u, f) {

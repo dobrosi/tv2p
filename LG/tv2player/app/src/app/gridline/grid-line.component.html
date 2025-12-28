@@ -1,7 +1,0 @@
-<div class="row-title">{{ siteRow.title }}</div>
-<div class="button-row">
-  <button class="cell" *ngFor="let siteItem of siteRow.siteItems"
-          (click)="parent.selectItem(siteItem)">
-    <app-grid-item [siteItem]="siteItem"></app-grid-item>
-  </button>
-</div>

@@ -69,6 +69,11 @@ const Navigation = {
         case 'Enter': this.enter(); break;
       }
     }
+    switch (e.keyCode()) {
+      case 415: //play
+        clickToButton()
+        break
+    }
   },
 
   handleKeyVideo: function(e) {
@@ -78,6 +83,26 @@ const Navigation = {
       case 'Backspace':
         this.goBack()
         break;
+      case 'ArrowUp':
+      case 'ArrowDown':
+        player.controls = true
+        break;
+
+    }
+    switch (e.keyCode()) {
+      case 413: //stop
+        this.goBack()
+        break
+      case 415: //play
+        if (player.paused) {
+          player.play()
+        }
+        break;
+      case 19: //pause
+        if (!player.paused) {
+          player.pause()
+        }
+        break
     }
   },
 
