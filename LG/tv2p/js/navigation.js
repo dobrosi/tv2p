@@ -87,7 +87,6 @@ const Navigation = {
       case 'ArrowDown':
         player.controls = true
         break;
-
     }
     switch (e.keyCode) {
       case 413: //stop

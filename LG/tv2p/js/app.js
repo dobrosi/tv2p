@@ -4,8 +4,6 @@ const hls = new Hls()
 const player = getElement('#player')
 const searchInput = getElement('#search-input')
 const loggerInput = getElement('#logger')
-const playbackRates = [0.1, 0.2, 0.5, 1, 2, 4, 8]
-const playbackRateIndex = 3
 
 document.addEventListener('DOMContentLoaded', function () {
   App.init();
