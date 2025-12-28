@@ -49,24 +49,25 @@
   display: none;             /* Chrome, Safari, webOS */
 }
 
-.col {
-  flex: unset;
+.col1 {
+  flex: 0 0 300px;
   width: 300px;
   height: 250px;
-  border: 2px solid transparent;
-  color: white;
-  background: #333;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: #303030;
 }
 
-.col.focused, input:focus-visible, input:focus {
+.col1.focused {
   border-color: yellow;
+  background: #404030;
 }
 
-.row {
+.row1 {
   flex-wrap: unset;
-  display: -webkit-box;
   overflow: auto;
   width: 100%;
+  gap: 20px;
 }
 
 .title {
@@ -80,6 +81,7 @@ body {
 
 .pic {
   width: 100%;
+  margin-bottom: 5px;
 }
 
 .pic2 {

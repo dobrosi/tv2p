@@ -58,7 +58,7 @@ function getElements(s) {
 }
 
 function getCell(x, y) {
-    return getElement('.row[data-y="' + y + '"] > .col[data-x="' + x + '"]')
+    return getElement('.row1[data-y="' + y + '"] > .col1[data-x="' + x + '"]')
 }
 
 function playVideo(x, y, url) {
@@ -114,7 +114,7 @@ function hide(s) {
 
 function scrollIntoView(e, pos) {
     e.scrollIntoView({
-        behavior: 'instant',
+        behavior: 'smooth',
         block: 'center',
         inline: pos
     })
