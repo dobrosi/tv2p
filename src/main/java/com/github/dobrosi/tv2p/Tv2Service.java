@@ -8,6 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.github.dobrosi.tv2p.configuration.PlaywrigthConfiguration;
+import com.github.dobrosi.tv2p.model.Response;
 import com.github.dobrosi.tv2p.model.Site;
 import com.github.dobrosi.tv2p.model.SiteItem;
 import com.github.dobrosi.tv2p.model.SiteRow;
@@ -82,14 +83,14 @@ public class Tv2Service {
 
     @ManagedOperation
     @Cacheable(value = "videoUrl", key = "#url", unless = "#result == null")
-    public String getVideoUrl(@NonNull String url) {
+    public Response getVideoUrl(@NonNull String url) {
         log.info("getVideoUrl, url: {}", url);
 
         AtomicReference<String> actualVideoUrl = new AtomicReference<>();
         actualVideoUrl.set(null);
         getBrowserPage().onRequest(request -> {
             final String videoUrl = request.url();
-            if (videoUrl.contains("pstream")) {
+            if (videoUrl.contains("pstream") && videoUrl.contains("m3u8")) {
                 actualVideoUrl.set(videoUrl);
             }
         });
@@ -98,11 +99,13 @@ public class Tv2Service {
         do {
             getBrowserPage().waitForTimeout(500);
         } while (actualVideoUrl.get() == null && counter++ < 5);
-        getBrowserPage().navigate("https://tv2play.hu");
-        String res = actualVideoUrl.get() == null ? null : actualVideoUrl.get().split("std")[0] + "std/chunklist_b4160000.m3u8";
+        final String actualVideoUrlValue = actualVideoUrl.get();
+        String res = actualVideoUrlValue == null ? null :
+                actualVideoUrlValue.contains("std") ? actualVideoUrlValue.split("std")[0] + "std/chunklist_b4160000.m3u8" :
+                        actualVideoUrlValue;
         actualVideoUrl.set(null);
-        log.info("getVideoUrl, response: {}", res);
-        return res;
+        log.info("getVideoUrl, response: {}, {}", res, actualVideoUrlValue);
+        return new Response(res);
     }
 
     @Scheduled(cron = "30 * * * * *")

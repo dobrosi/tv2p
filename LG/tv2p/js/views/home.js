@@ -12,7 +12,7 @@ const HomeView = {
             html += '<div class="p-2 col1" onclick=load("load?url=' + item.url + '") data-x="' + x + '">'
                 + '<img class="pic2" src="' + item.imageUrl + '" alt="' + item.title + '">' + item.title + '</div>'
           } else { // Video link
-            html += '<div class="p-2 col1" onclick="playVideo(' +x + ',' + y + ', \'' + item.url + '\')" data-x="' + x + '">'
+            html += '<div class="p-2 col1" onclick="playVideo(\'' + item.url + '\', ' + x + ', ' + y + ')" data-x="' + x + '">'
                 + '<img class="pic" src="' + item.imageUrl + '" alt="' + item.title + '">' + item.title + '</div>'
           }
         } else { // Mutasd mindet!

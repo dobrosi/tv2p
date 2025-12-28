@@ -5,6 +5,7 @@ const player = getElement('#player')
 const searchInput = getElement('#search-input')
 const loggerInput = getElement('#logger')
 const playbackRates = [0.1, 0.2, 0.5, 1, 2, 4, 8]
+const playbackRateIndex = 3
 
 document.addEventListener('DOMContentLoaded', function () {
   App.init();
@@ -61,9 +62,11 @@ function getCell(x, y) {
     return getElement('.row1[data-y="' + y + '"] > .col1[data-x="' + x + '"]')
 }
 
-function playVideo(x, y, url) {
+function playVideo(url, x, y) {
     console.log('play video', url)
-    Navigation.navigateTo(x, y)
+    if (x !== undefined && y !== undefined) {
+        Navigation.navigateTo(x, y)
+    }
     show('#loading')
     get('getVideoUrl?url=' + url, r => {
         if (r && r.value) {

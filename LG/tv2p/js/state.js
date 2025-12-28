@@ -4,6 +4,7 @@ const State = {
   x: undefined,
   y: undefined,
   grid: undefined,
+  videoUrl: undefined,
 
   init: function () {
     this.initFocus()
