@@ -69,7 +69,7 @@ const Navigation = {
         case 'Enter': this.enter(); break;
       }
     }
-    switch (e.keyCode()) {
+    switch (e.keyCode) {
       case 415: //play
         clickToButton()
         break
@@ -89,7 +89,7 @@ const Navigation = {
         break;
 
     }
-    switch (e.keyCode()) {
+    switch (e.keyCode) {
       case 413: //stop
         this.goBack()
         break
