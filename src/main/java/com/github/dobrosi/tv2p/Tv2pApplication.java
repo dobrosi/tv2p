@@ -32,14 +32,13 @@ public class Tv2pApplication {
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory factory) {
         RedisCacheConfiguration config = RedisCacheConfiguration
-                .defaultCacheConfig()
-                .entryTtl(Duration.ofHours(5));
+                .defaultCacheConfig();
 
         return RedisCacheManager.builder(factory)
                 .cacheDefaults(config)
                 .withCacheConfiguration(
                         "videoUrl",
-                        config.entryTtl(Duration.ofMinutes(5))
+                        config.entryTtl(Duration.ofMinutes(30))
                 )
                 .build();
     }
