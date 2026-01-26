@@ -2,6 +2,8 @@ package com.github.dobrosi.tv2p;
 
 import java.time.Duration;
 
+import com.github.dobrosi.tv2p.configuration.TmdbApiConfiguration;
+import info.movito.themoviedbapi.TmdbApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -41,5 +43,10 @@ public class Tv2pApplication {
                         config.entryTtl(Duration.ofMinutes(30))
                 )
                 .build();
+    }
+
+    @Bean
+    public TmdbApi tmdbApi(TmdbApiConfiguration config) {
+        return new TmdbApi(config.getApiKey());
     }
 }

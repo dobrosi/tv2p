@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api")
 public class Tv2Controller {
-    final Tv2Service tv2Service;
+    private final Tv2Service tv2Service;
 
     @Autowired
     public Tv2Controller(final Tv2Service tv2Service) {

@@ -24,3 +24,5 @@ management:
   endpoint:
     shutdown:
       access: unrestricted
+tmdb:
+  api-key:
