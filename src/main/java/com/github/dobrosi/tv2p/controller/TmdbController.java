@@ -38,15 +38,15 @@ public class TmdbController {
     }
 
     @GetMapping("/search")
-    public Site search(@RequestParam String q) throws TmdbException {
+    public Site search(@RequestParam String text) throws TmdbException {
         return new Site(
-                q,
+                text,
                 null,
                 List.of(new SiteRow(
-                        q,
+                        text,
                         null,
                         null,
-                        tmdbService.search(q)
+                        tmdbService.search(text)
                                 .getResults()
                                 .stream()
 
