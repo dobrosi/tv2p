@@ -69,6 +69,7 @@ function playVideo(url, x, y) {
     get('getVideoUrl?url=' + url, r => {
         if (r && r.value) {
             history.pushState({}, undefined, '')
+            
             if (Hls.isSupported()) {
                 show('#video')
                 hls.loadSource(r.value)
@@ -77,6 +78,25 @@ function playVideo(url, x, y) {
             } else {
                 player.src = r.value
             }
+/*
+
+            webOS.service.request('luna://com.webos.applicationManager', {
+              method: 'launch',
+              parameters: {
+                id: 'com.webos.app.videoplayer',
+                params: {
+                  target: r.value
+                }
+              },
+              onSuccess: function (res) {
+                console.log('Video Player elindult', res);
+              },
+              onFailure: function (err) {
+                console.error('Hiba:', err);
+              }
+            });
+*/
+
         } else {
             show('#home')
         }
