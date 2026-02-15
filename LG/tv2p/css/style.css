@@ -58,6 +58,10 @@
   background: #303030;
 }
 
+.bigcol1 {
+  height: 520px !important;
+}
+
 .col1.focused {
   border-color: yellow;
   background: #404030;

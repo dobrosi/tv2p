@@ -9,7 +9,7 @@ const HomeView = {
       row.siteItems.forEach((item ,x) => {
         if (item.imageUrl) {
           if (item.title === '') { // Hasonlo musorok
-            html += '<div class="p-2 col1" onclick=load("load?url=' + item.url + '") data-x="' + x + '">'
+            html += '<div class="p-2 col1 bigcol1" onclick=load("load?url=' + item.url + '") data-x="' + x + '">'
                 + '<img class="pic2" src="' + item.imageUrl + '" alt="' + item.title + '">' + item.title + '</div>'
           } else { // Video link
             html += '<div class="p-2 col1" onclick="playVideo(\'' + item.url + '\', ' + x + ', ' + y + ')" data-x="' + x + '">'
