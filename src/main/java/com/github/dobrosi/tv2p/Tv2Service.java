@@ -1,21 +1,11 @@
 package com.github.dobrosi.tv2p;
 
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.github.dobrosi.tv2p.configuration.PlaywrigthConfiguration;
 import com.github.dobrosi.tv2p.model.Response;
 import com.github.dobrosi.tv2p.model.Site;
 import com.github.dobrosi.tv2p.model.SiteItem;
 import com.github.dobrosi.tv2p.model.SiteRow;
-import com.microsoft.playwright.BrowserContext;
-import com.microsoft.playwright.BrowserType;
-import com.microsoft.playwright.Locator;
-import com.microsoft.playwright.Page;
+import com.microsoft.playwright.*;
 import jakarta.annotation.PreDestroy;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +18,12 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import static com.microsoft.playwright.Playwright.create;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import static java.lang.System.currentTimeMillis;
 
 @Data
@@ -117,18 +112,22 @@ public class Tv2Service {
 
     private synchronized Page getBrowserPage() {
         lastAccess = currentTimeMillis();
+
         if (browserPage == null || browserPage.isClosed()) {
-            browser = create()
-                .firefox()
-                .launchPersistentContext(
-                    Paths.get("playwright-user-data"),
-                    new BrowserType
-                            .LaunchPersistentContextOptions()
-                            .setHeadless(playwrigthConfiguration
-                                                 .isHeadless())
-                );
-            browserPage = browser.pages().stream().findFirst().orElseThrow();
+
+            Playwright playwright = Playwright.create();
+
+            Browser browser = playwright.chromium().launch(
+                    new BrowserType.LaunchOptions()
+                            .setHeadless(playwrigthConfiguration.isHeadless())
+                            .setArgs(List.of(
+                                    "--no-sandbox"
+                            ))
+            );
+
+            browserPage = browser.newPage();
         }
+
         return browserPage;
     }
 

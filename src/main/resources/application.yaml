@@ -2,7 +2,7 @@ server:
   port: 8085
   servlet:
     context-path: /tv2
-playwright.headless: false
+playwright.headless: true
 
 spring:
   cache.type: redis

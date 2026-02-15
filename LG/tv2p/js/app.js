@@ -1,4 +1,5 @@
 const url = "https://pgy.no-ip.hu/tv2/api/"
+//const url = "https://pgy.no-ip.hu/tmdb/api/"
 //const url = "http://localhost:8085/tv2/api/"
 const hls = new Hls()
 const player = getElement('#player')
@@ -16,6 +17,9 @@ searchInput.addEventListener('focus', function () {
 const App = {
     init: function () {
         hls.attachMedia(player)
+        player.addEventListener("ended", () => {
+            show('#home')
+        });
         Navigation.init()
         load()
     }
@@ -45,7 +49,9 @@ const originalLog = console.log;
 console.log = function(...args) {
     const timestamp = new Date().toISOString();
     originalLog.apply(console, [`[${timestamp}]`, ...args]);
-    loggerInput.value = args[0]
+    if (loggerInput) {
+        loggerInput.value = args[0]
+    }
 }
 
 function getElement(s) {
