@@ -5,6 +5,7 @@ const hls = new Hls()
 const player = getElement('#player')
 const searchInput = getElement('#search-input')
 const loggerInput = getElement('#logger')
+let actualVideoUrl, videoTimes
 
 document.addEventListener('DOMContentLoaded', function () {
   App.init();
@@ -19,10 +20,19 @@ const App = {
         hls.attachMedia(player)
         player.addEventListener("ended", () => {
             show('#home')
-        });
+        })
         Navigation.init()
         load()
+        loadStorage()
     }
+}
+
+function loadStorage() {
+    videoTimes = new Map(Object.entries(JSON.parse(localStorage.getItem("videoTimes") || "{}")));
+}
+
+function saveStorage() {
+    localStorage.setItem("videoTimes", JSON.stringify(Object.fromEntries(videoTimes)));
 }
 
 function get(u, f) {
@@ -68,6 +78,7 @@ function getCell(x, y) {
 
 function playVideo(url, x, y) {
     console.log('play video', url)
+    actualVideoUrl = url
     if (x !== undefined && y !== undefined) {
         Navigation.navigateTo(x, y)
     }
@@ -83,6 +94,10 @@ function playVideo(url, x, y) {
                 player.focus()
             } else {
                 player.src = r.value
+            }
+            const t = videoTimes.get(actualVideoUrl)
+            if (t) {
+                player.currentTime = t
             }
 /*
 
@@ -110,6 +125,8 @@ function playVideo(url, x, y) {
 }
 
 function stopVideo() {
+    videoTimes.set(actualVideoUrl, Math.max(0, player.currentTime - 2))
+    saveStorage()
     player.pause();
     player.currentTime = 0;
     player.removeAttribute('src');
