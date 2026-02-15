@@ -1,14 +1,19 @@
 package com.github.dobrosi.tv2p;
 
 import com.github.dobrosi.tv2p.configuration.PlaywrigthConfiguration;
+import com.github.dobrosi.tv2p.configuration.Tv2PlayConfiguration;
 import com.github.dobrosi.tv2p.model.Response;
 import com.github.dobrosi.tv2p.model.Site;
 import com.github.dobrosi.tv2p.model.SiteItem;
 import com.github.dobrosi.tv2p.model.SiteRow;
 import com.microsoft.playwright.*;
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -21,8 +26,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static java.lang.System.currentTimeMillis;
 
@@ -34,18 +37,22 @@ import static java.lang.System.currentTimeMillis;
 @Slf4j
 public class Tv2Service {
     private final PlaywrigthConfiguration playwrigthConfiguration;
+    private final Tv2PlayConfiguration tv2PlayConfiguration;
 
     public static final String DEFAULT_URL = "https://tv2play.hu";
     public static final String SEARCH_URL = "https://tv2play.hu/kereses?kulcsszo=";
-    private static final Pattern backgroundImageUrlPattern = Pattern.compile("background-image:\\s*url\\(\"([^\"]+)\"\\)");
+    private static Playwright playwright;
+    private static Browser browser;
+    private static BrowserContext browserContext;
 
-    private static Page browserPage;
-    private BrowserContext browser;
     private long lastAccess;
 
     @Autowired
-    public Tv2Service(final PlaywrigthConfiguration playwrigthConfiguration) {
+    public Tv2Service(
+            final PlaywrigthConfiguration playwrigthConfiguration,
+            final Tv2PlayConfiguration tv2PlayConfiguration) {
         this.playwrigthConfiguration = playwrigthConfiguration;
+        this.tv2PlayConfiguration = tv2PlayConfiguration;
     }
 
     @PreDestroy
@@ -56,7 +63,20 @@ public class Tv2Service {
 
     @ManagedOperation
     @CacheEvict(value = {"load", "search", "mainSite"}, allEntries = true)
+    @PostConstruct
     public void init() {
+        if (playwright == null) {
+            playwright = Playwright.create();
+            browser = playwright.chromium().launch(
+                    new BrowserType.LaunchOptions()
+                            .setHeadless(playwrigthConfiguration.isHeadless())
+                            .setArgs(List.of(
+                                    "--no-sandbox"
+                            ))
+            );
+            browserContext = browser.newContext();
+            login();
+        }
     }
 
     @ManagedOperation
@@ -83,83 +103,83 @@ public class Tv2Service {
 
         AtomicReference<String> actualVideoUrl = new AtomicReference<>();
         actualVideoUrl.set(null);
-        getBrowserPage().onRequest(request -> {
-            final String videoUrl = request.url();
-            if (videoUrl.contains("pstream") && videoUrl.contains("m3u8")) {
-                actualVideoUrl.set(videoUrl);
-            }
-        });
-        getBrowserPage().navigate("https://tv2play.hu" + url);
-        int counter = 0;
-        do {
-            getBrowserPage().waitForTimeout(500);
-        } while (actualVideoUrl.get() == null && counter++ < 5);
-        final String actualVideoUrlValue = actualVideoUrl.get();
-        String res = actualVideoUrlValue == null ? null :
-                actualVideoUrlValue.contains("std") ? actualVideoUrlValue.split("std")[0] + "std/chunklist_b4160000.m3u8" :
-                        actualVideoUrlValue;
-        actualVideoUrl.set(null);
-        log.info("getVideoUrl, response: {}, {}", res, actualVideoUrlValue);
-        return new Response(res);
+        try (Page page = getBrowserPage()) {
+            page.onRequest(request -> {
+                final String videoUrl = request.url();
+                if (videoUrl.contains("pstream") && videoUrl.contains("m3u8")) {
+                    actualVideoUrl.set(videoUrl);
+                }
+            });
+            page.navigate("https://tv2play.hu" + url);
+            int counter = 0;
+            do {
+                page.waitForTimeout(500);
+            } while (actualVideoUrl.get() == null && counter++ < 5);
+            final String actualVideoUrlValue = actualVideoUrl.get();
+            String res = actualVideoUrlValue == null ? null :
+                    actualVideoUrlValue.contains("std") ? actualVideoUrlValue.split("std")[0] + "std/chunklist_b4160000.m3u8" :
+                            actualVideoUrlValue;
+            actualVideoUrl.set(null);
+            log.info("getVideoUrl, response: {}, {}", res, actualVideoUrlValue);
+            return new Response(res);
+        }
     }
 
     @Scheduled(cron = "30 * * * * *")
     public void scheduler() {
         if (currentTimeMillis() - lastAccess > 1000 * 60 * 10) { // 10 mins
-            close();
+            //close();
         }
     }
 
-    private synchronized Page getBrowserPage() {
+    private Page getBrowserPage() {
         lastAccess = currentTimeMillis();
+        return browserContext.newPage();
+    }
 
-        if (browserPage == null || browserPage.isClosed()) {
-
-            Playwright playwright = Playwright.create();
-
-            Browser browser = playwright.chromium().launch(
-                    new BrowserType.LaunchOptions()
-                            .setHeadless(playwrigthConfiguration.isHeadless())
-                            .setArgs(List.of(
-                                    "--no-sandbox"
-                            ))
-            );
-
-            browserPage = browser.newPage();
-        }
-
-        return browserPage;
+    private void login() {
+        Page browserPage = getBrowserPage();
+        browserPage.navigate("https://tv2play.hu");
+        browserPage.waitForSelector("#disagree-btn").click();
+        browserPage.waitForSelector(".egMsUt").click();
+        browserPage.waitForSelector(".gGYsgT").click();
+        browserPage.waitForSelector("#email").fill(tv2PlayConfiguration.getEmail());
+        browserPage.waitForSelector("#password").fill(new String(tv2PlayConfiguration.getPassword()));
+        browserPage.waitForSelector(".hZERXC").click();
+        log.info("Login success");
     }
 
     private Site buildSite(String url) {
         log.info("Create site, url: {}", url);
-        getBrowserPage().navigate(url);
-        String pageLocator;
-        boolean withTitle;
+        try(Page page = getBrowserPage()) {
+            page.navigate(url);
+            String pageLocator;
+            boolean withTitle;
 
-        if (url.contains("/szalag/")) {
-            pageLocator = ".hmqeAp";
-            withTitle = false;
-        } else {
-            pageLocator = ".eOPCjY";
-            withTitle = true;
+            if (url.contains("/szalag/")) {
+                pageLocator = ".hmqeAp";
+                withTitle = false;
+            } else {
+                pageLocator = ".eOPCjY";
+                withTitle = true;
+            }
+            page.waitForSelector(pageLocator);
+            scrollDown(page);
+            return getSite(page, url, pageLocator, withTitle);
         }
-        getBrowserPage().waitForSelector(pageLocator);
-        scrollDown();
-        return getSite(url, pageLocator, withTitle);
     }
 
-    private Site getSite(String url, String pageLocator, boolean withTitle) {
+    private Site getSite(Page page, String url, String pageLocator, boolean withTitle) {
         return new Site(
-                getBrowserPage().title(),
+                page.title(),
                 url,
-                getSiteRows(pageLocator, withTitle),
+                getSiteRows(page, pageLocator, withTitle),
                 null);
     }
 
-    private List<SiteRow> getSiteRows(final String pageLocator, final boolean withTitle) {
-        List<SiteRow> rows = getBrowserPage().locator(pageLocator)
-            .all()
+    private List<SiteRow> getSiteRows(Page page, final String pageLocator, final boolean withTitle) {
+        Document doc = Jsoup.parseBodyFragment(page.innerHTML("#root"));
+        List<SiteRow> rows = doc.select(pageLocator)
             .stream()
             .map(
                 v -> getRow(v, withTitle)
@@ -187,14 +207,14 @@ public class Tv2Service {
         return result;
     }
 
-    private void scrollDown() {
+    private void scrollDown(Page page) {
         int maxScrolls = 50;
-        int delayMs = 200;
+        int delayMs = 50;
 
         for (int i = 0; i < maxScrolls; i++) {
-            getBrowserPage().evaluate("window.scrollBy(0, window.innerHeight);");
-            getBrowserPage().waitForTimeout(delayMs);
-            var atBottom = (Boolean) getBrowserPage().evaluate("""
+            page.evaluate("window.scrollBy(0, window.innerHeight);");
+            page.waitForTimeout(delayMs);
+            var atBottom = (Boolean) page.evaluate("""
                     () => {
                         const scrollTop = window.scrollY || document.documentElement.scrollTop;
                         const clientHeight = document.documentElement.clientHeight;
@@ -209,7 +229,7 @@ public class Tv2Service {
         }
     }
 
-    private SiteRow getRow(Locator s, boolean withTitle) {
+    private SiteRow getRow(Element s, boolean withTitle) {
         String title = "";
         if (withTitle) {
             title = getTitle(s);
@@ -225,69 +245,46 @@ public class Tv2Service {
         return new SiteRow(title, null, getShowAllUrl(s), getItems(s, ".jyYozc"));
     }
 
-    private List<SiteItem> getItems(Locator s, String selector) {
-        return s.locator(selector)
-            .all()
+    private List<SiteItem> getItems(Element s, String selector) {
+        return s.select(selector)
             .stream()
             .map(this::getItem)
             .toList();
     }
 
-    private List<SiteItem> getChannelItems(Locator s) {
-        return s.locator(".hgBjaj")
-            .all()
+    private List<SiteItem> getChannelItems(Element s) {
+        return s.select(".hgBjaj")
             .stream()
             .map(this::getChannelItem)
             .toList();
     }
 
-    private SiteItem getItem(Locator i) {
-        final String itemTitle;
-        final String imageUrl;
-        final String url = getUrl(i);
-        if (!i.textContent().contains("Mutasd")) {
-            itemTitle = getItemTitle(i);
-            imageUrl = getImageUrl(i, ".fbOoTV");
-        } else {
-            itemTitle = "Mutasd mindet!";
-            imageUrl = null;
-        }
-        log.info("Create item, title: {}", itemTitle);
-        return new SiteItem(itemTitle, imageUrl, url);
+    private SiteItem getItem(Element doc) {
+        Element titleElem = doc.selectFirst("h3");
+        String title = titleElem != null ? titleElem.text() : "...";
+
+        return new SiteItem(title, getImageUrl(doc), getUrl(doc));
     }
 
-    private SiteItem getChannelItem(Locator i) {
-        return new SiteItem("", getImageUrl(i, ".bJitzp"), getUrl(i));
+    private SiteItem getChannelItem(Element i) {
+        return new SiteItem("", getImageUrl(i), getUrl(i));
     }
 
-    private String getUrl(Locator i) {
-        return i.locator("a.eYVpgd")
-            .all()
-            .get(0)
-            .getAttribute("href");
+    private String getUrl(Element doc) {
+        Element link = doc.selectFirst("a.sc-88rx0b-0.eYVpgd");
+        return link != null ? link.attr("href") : "";
     }
 
-    private String getImageUrl(Locator i, String s) {
-        Matcher matcher = backgroundImageUrlPattern.matcher(i.locator(s)
-                                                                .getAttribute("style"));
-        if (matcher.find()) {
-            return matcher.group(1);
-        } else {
-            return null;
-        }
+    private String getImageUrl(Element doc) {
+        Element imgDiv = doc.selectFirst("div[style*='background-image']");
+        return imgDiv == null ? null : imgDiv.attr("style").replaceAll(".*url\\(\"([^\"]+)\"\\).*", "$1");
     }
 
-    private String getItemTitle(Locator i) {
-        return i.locator(".gXOIAm")
-            .textContent();
+    private static String getTitle(Element s) {
+        return s.select(".emkegV > div:nth-child(1)").text();
     }
 
-    private static String getTitle(Locator s) {
-        return s.locator(".emkegV > div:nth-child(1)")
-            .textContent();
-    }
-
-    private String getShowAllUrl(Locator s) {
+    private String getShowAllUrl(Element s) {
         log.info("getShowAllUrl, {}", s);
         /*
         final Locator locator = s.locator(".emkegV > div:nth-child(2)");
@@ -298,15 +295,17 @@ public class Tv2Service {
     }
 
     private void close() {
-        if (browserPage != null) {
-            log.info("browserPage close");
-            browserPage.close();
-            browserPage = null;
-        }
-        if (browser != null) {
-            log.info("browser close");
-            browser.close();
-            browser = null;
+        close(browserContext);
+        close(browser);
+        close(playwright);
+    }
+
+    private void close(AutoCloseable o) {
+        try {
+            log.info("closed: {}", o);
+            o.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }
