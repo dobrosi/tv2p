@@ -209,7 +209,7 @@ public class Tv2Service {
 
     private void scrollDown(Page page) {
         int maxScrolls = 50;
-        int delayMs = 50;
+        int delayMs = 200;
 
         for (int i = 0; i < maxScrolls; i++) {
             page.evaluate("window.scrollBy(0, window.innerHeight);");
