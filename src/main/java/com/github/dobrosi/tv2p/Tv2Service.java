@@ -140,7 +140,8 @@ public class Tv2Service {
     private void login() {
         Page browserPage = getBrowserPage();
         browserPage.navigate("https://tv2play.hu");
-        browserPage.waitForSelector("#disagree-btn").click();
+        browserPage.waitForSelector("#accept-btn").click();
+        browserPage.waitForSelector(".fXDcOo").click();
         browserPage.waitForSelector(".egMsUt").click();
         browserPage.waitForSelector(".gGYsgT").click();
         browserPage.waitForSelector("#email").fill(tv2PlayConfiguration.getEmail());
